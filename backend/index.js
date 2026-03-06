@@ -22,42 +22,37 @@ app.use(express.json());
 app.get('/api/v1/products/search', async (req, res) => {
   const query = req.query.q;
 
-  // Log para Debug: Mostra no terminal o que está chegando
-  console.log(`Recebi a busca: "${query}" | Tamanho: ${query ? query.length : 0}`);
-
-  // 1. Validação de Comprimento
+  // 1. Validação de Comprimento (Mantida a segurança básica)
   if (!query || query.trim().length < 3 || query.length > 100) {
-    return res.status(400).json({ 
-        error: "Busca inválida (mínimo 3, máximo 100 caracteres)." 
-    });
-  }
-
-  // 2. Validação de Conteúdo (Alfanumérico)
-  // Permite letras, números e espaços (para "RTX 4090", por exemplo)
-  const alphanumericRegex = /^[a-zA-Z0-9 ]+$/;
-  if (!alphanumericRegex.test(query)) {
-    return res.status(400).json({ 
-        error: "Caracteres inválidos detectados.",
-        suggestion: "Apenas letras e números são habilitados nesse campo." 
+    return res.status(400).json({
+      error: "Busca inválida (mínimo 3, máximo 100 caracteres)."
     });
   }
 
   try {
-    // 3. A Lógica Real de Busca no Banco de Dados
-    const result = await pool.query(
-      "SELECT * FROM products WHERE name ILIKE $1 OR description ILIKE $1",
-      [`%${query}%`]
-    );
+    // 2. TOKENIZAÇÃO: Transformamos "placa rtx" em ["placa", "rtx"]
+    // Também removemos espaços extras com o .filter(Boolean)
+    const terms = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
 
-    // Se não achar nada, retorna lista vazia mas com sucesso (200)
+    // 3. CONSTRUÇÃO DINÂMICA DA QUERY (Busca por múltiplas keywords)
+    // Criamos um filtro onde CADA palavra deve existir no nome ou descrição
+    const conditions = terms.map((_, index) =>
+      `(name ILIKE $${index + 1} OR description ILIKE $${index + 1})`
+    ).join(' AND ');
+
+    const values = terms.map(term => `%${term}%`);
+
+    const sql = `SELECT * FROM products WHERE ${conditions} ORDER BY name ASC`;
+
+    const result = await pool.query(sql, values);
+
     if (result.rows.length === 0) {
-      return res.status(200).json({ 
-        message: "Ops! Não encontramos o hardware que você procura", 
-        results: [] 
+      return res.status(200).json({
+        message: "Ops! Não encontramos o hardware que você procura.",
+        results: []
       });
     }
 
-    // Se achar, retorna os produtos
     res.status(200).json({
       count: result.rows.length,
       results: result.rows
