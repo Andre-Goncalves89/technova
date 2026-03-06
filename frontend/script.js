@@ -3,50 +3,50 @@ const charCounter = document.getElementById('charCounter');
 const searchButton = document.getElementById('searchButton');
 const productGrid = document.getElementById('productGrid');
 
-// 1. Lógica de Feedback Visual (Sugestão do André QA Lead)
+// 1. Otimização de Feedback Visual
 searchInput.addEventListener('input', () => {
-    const length = searchInput.value.length;
-    charCounter.innerText = `${length}/100`;
-
-    // Reset de classes
+    const { value } = searchInput;
+    charCounter.innerText = `${value.length}/100`;
+    
+    // Reset de estados visuais
     searchInput.classList.remove('warning', 'error');
-
-    if (length >= 90 && length < 100) {
-        searchInput.classList.add('warning'); // Cor Amarela
-    } else if (length >= 100) {
-        searchInput.classList.add('error');   // Cor Vermelha
-    }
+    if (value.length >= 90) searchInput.classList.add('warning');
+    if (value.length >= 100) searchInput.classList.add('error');
 });
 
-// 2. Função para buscar produtos na API Backend
+// 2. Lógica de Busca Refatorada (Clean Code)
 async function performSearch() {
-    const query = searchInput.value;
+    // Normalização básica no front para evitar espaços desnecessários
+    const query = searchInput.value.trim();
+    if (!query) return;
 
     try {
-        const response = await fetch(`http://localhost:5000/api/v1/products/search?q=${query}`);
+        productGrid.innerHTML = '<p class="loading">Buscando no TechNova...</p>';
+        
+        const response = await fetch(`http://localhost:5000/api/v1/products/search?q=${encodeURIComponent(query)}`);
         const data = await response.json();
 
         if (response.ok) {
-            displayProducts(data.results);
+            renderProducts(data.results);
         } else {
-            // Exibe mensagem amigável definida no Backend
-            productGrid.innerHTML = `<p class="error-msg">${data.suggestion || data.error}</p>`;
+            // Exibe o erro vindo do Backend (onde está o bug do "í")
+            showError(data.suggestion || data.error);
         }
     } catch (error) {
-        productGrid.innerHTML = `<p class="error-msg">Erro ao conectar com o servidor TechNova.</p>`;
+        showError("Erro de conexão com o servidor TechNova.");
     }
 }
 
-// 3. Renderizar produtos na tela
-function displayProducts(products) {
+// 3. Funções Auxiliares (Separação de Responsabilidades)
+function renderProducts(products) {
     if (products.length === 0) {
-        productGrid.innerHTML = `<p>Ops! Não encontramos o hardware que você procura.</p>`;
+        productGrid.innerHTML = '<p>Ops! Não encontramos esse hardware.</p>';
         return;
     }
 
     productGrid.innerHTML = products.map(product => `
         <div class="product-card">
-            <img src="https://via.placeholder.com/150" alt="${product.name}">
+            <img src="${product.image_url || 'https://via.placeholder.com/150'}" alt="${product.name}">
             <h3>${product.name}</h3>
             <p>${product.description}</p>
             <span class="price">R$ ${parseFloat(product.price).toLocaleString('pt-br')}</span>
@@ -55,7 +55,11 @@ function displayProducts(products) {
     `).join('');
 }
 
-// Eventos de clique e teclado
+function showError(message) {
+    productGrid.innerHTML = `<p class="error-msg">${message}</p>`;
+}
+
+// Eventos
 searchButton.addEventListener('click', performSearch);
 searchInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') performSearch();
