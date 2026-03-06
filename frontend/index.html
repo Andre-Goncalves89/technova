@@ -3,21 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TechNova | High-Performance Hardware</title>
+    <title>TechNova - Boutique de Hardware</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <header>
-        <div class="logo">TechNova</div>
-        <div class="search-container">
-            <input type="text" id="searchInput" placeholder="Busque sua RTX, Processador..." maxlength="100">
-            <span id="charCounter">0/100</span>
-            <button id="searchButton">🔍</button>
+        <div class="logo">
+            <h1>TechNova</h1>
+            <span>Premium Electronics Lab</span>
+        </div>
+        
+        <div class="search-box">
+            <input 
+                type="text" 
+                id="searchInput" 
+                placeholder="O que você está procurando hoje?" 
+                maxlength="100"
+                data-cy="search-input"> <button id="searchButton" data-cy="search-button">
+                <i class="fa fa-search"></i>
+            </button>
+            
+            <div id="charCounter" data-cy="char-counter">0/100</div>
         </div>
     </header>
 
-    <main id="productGrid">
-        <p class="placeholder-text">O que você deseja montar hoje?</p>
+    <main>
+        <div id="productGrid" class="product-grid">
+            </div>
     </main>
 
     <script src="script.js"></script>

@@ -3,63 +3,66 @@ const charCounter = document.getElementById('charCounter');
 const searchButton = document.getElementById('searchButton');
 const productGrid = document.getElementById('productGrid');
 
-// 1. Otimização de Feedback Visual
+// 1. Lógica de Feedback Visual (Contador e Cores)
 searchInput.addEventListener('input', () => {
-    const { value } = searchInput;
-    charCounter.innerText = `${value.length}/100`;
+    const length = searchInput.value.length;
+    charCounter.innerText = `${length}/100`;
     
-    // Reset de estados visuais
     searchInput.classList.remove('warning', 'error');
-    if (value.length >= 90) searchInput.classList.add('warning');
-    if (value.length >= 100) searchInput.classList.add('error');
+    if (length >= 90 && length < 100) {
+        searchInput.classList.add('warning');
+    } else if (length >= 100) {
+        searchInput.classList.add('error');
+    }
 });
 
-// 2. Lógica de Busca Refatorada (Clean Code)
+// 2. Função de Busca (Consumindo a API com suporte a Tokens)
 async function performSearch() {
-    // Normalização básica no front para evitar espaços desnecessários
     const query = searchInput.value.trim();
+    
+    // Bloqueia busca vazia no frontend (Reflexo da Issue de UX)
     if (!query) return;
 
     try {
-        productGrid.innerHTML = '<p class="loading">Buscando no TechNova...</p>';
+        productGrid.innerHTML = '<p class="loading">Consultando estoque TechNova...</p>';
         
         const response = await fetch(`http://localhost:5000/api/v1/products/search?q=${encodeURIComponent(query)}`);
         const data = await response.json();
 
         if (response.ok) {
-            renderProducts(data.results);
+            displayProducts(data.results);
         } else {
-            // Exibe o erro vindo do Backend (onde está o bug do "í")
-            showError(data.suggestion || data.error);
+            // Exibe erro vindo do Backend (Acentos/Keywords)
+            productGrid.innerHTML = `<p class="error-msg" data-cy="error-message">${data.suggestion || data.error}</p>`;
         }
     } catch (error) {
-        showError("Erro de conexão com o servidor TechNova.");
+        productGrid.innerHTML = `<p class="error-msg">Erro crítico de conexão.</p>`;
     }
 }
 
-// 3. Funções Auxiliares (Separação de Responsabilidades)
-function renderProducts(products) {
+// 3. Renderização Dinâmica com Atributos de Teste (data-cy)
+function displayProducts(products) {
     if (products.length === 0) {
-        productGrid.innerHTML = '<p>Ops! Não encontramos esse hardware.</p>';
+        productGrid.innerHTML = `<p class="no-results" data-cy="no-results">Ops! Não encontramos esse hardware.</p>`;
         return;
     }
 
     productGrid.innerHTML = products.map(product => `
-        <div class="product-card">
-            <img src="${product.image_url || 'https://via.placeholder.com/150'}" alt="${product.name}">
-            <h3>${product.name}</h3>
-            <p>${product.description}</p>
-            <span class="price">R$ ${parseFloat(product.price).toLocaleString('pt-br')}</span>
-            <button class="detail-btn">Ver Detalhes</button>
+        <div class="product-card" data-cy="product-card">
+            <img src="${product.image_url || 'https://via.placeholder.com/150'}" 
+                 alt="${product.name}" 
+                 data-cy="product-image">
+            <h3 data-cy="product-name">${product.name}</h3>
+            <p data-cy="product-description">${product.description}</p>
+            <span class="price" data-cy="product-price">
+                R$ ${parseFloat(product.price).toLocaleString('pt-br')}
+            </span>
+            <button class="detail-btn" data-cy="btn-details">Ver Detalhes</button>
         </div>
     `).join('');
 }
 
-function showError(message) {
-    productGrid.innerHTML = `<p class="error-msg">${message}</p>`;
-}
-
-// Eventos
+// Listeners de Evento
 searchButton.addEventListener('click', performSearch);
 searchInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') performSearch();
