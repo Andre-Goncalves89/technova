@@ -51,7 +51,7 @@ npm run frontend
 
 ## 🧪 ESTRATÉGIA DE TESTES (QA)
 
-O projeto **TechNova** adota o **Padrão Ouro** de automação, priorizando a estabilidade e a fácil manutenção da suíte de testes [cite: 2025-12-15].
+O projeto **TechNova** adota o **Padrão Ouro** de automação, priorizando a estabilidade e a fácil manutenção da suíte de testes.
 
 ### 🛡️ Resiliência com `data-cy`
 Para evitar que mudanças de layout, estilos CSS ou classes dinâmicas quebrem a automação, utilizamos **seletores exclusivos** em todos os elementos críticos:
@@ -76,15 +76,15 @@ npm run test
 
 Abaixo estão os fluxos críticos que foram automatizados e validados pela suíte de testes do Cypress:
 
-* 🟢 **Busca Multitoken**: Validação da inteligência de busca ao pesquisar por palavras-chave fora de ordem (ex: pesquisar por `RTX placa` deve retornar resultados de placas RTX) [cite: 2026-02-27].
-* 🟢 **Acentuação Gráfica**: Teste de integridade de caracteres especiais e suporte a acentos para garantir a correção do **Bug #8** (ex: busca por `Vídeo` funcionando corretamente) [cite: 2025-12-15].
+* 🟢 **Busca Multitoken**: Validação da inteligência de busca ao pesquisar por palavras-chave fora de ordem (ex: pesquisar por `RTX placa` deve retornar resultados de placas RTX).
+* 🟢 **Acentuação Gráfica**: Teste de integridade de caracteres especiais e suporte a acentos para garantir a correção do **Bug #8** (ex: busca por `Vídeo` funcionando corretamente).
 * 🟢 **Regressão de UI (Contador)**: Validação da mudança de estado visual e lógica do contador de caracteres, garantindo que o limite de `100` caracteres seja respeitado e sinalizado ao usuário.
 
 > **Nota de QA:** Todos os testes foram executados no ambiente **WSL: Ubuntu** apontando para a porta `3000`.
 ---
 ## 🏛️ ESTRUTURA DE PASTAS
 
-A organização do ecossistema **TechNova** foi planejada para garantir que a infraestrutura de backend, o código do cliente e a suíte de testes coexistam de forma independente e organizada [cite: 2026-02-27]:
+A organização do ecossistema **TechNova** foi planejada para garantir que a infraestrutura de backend, o código do cliente e a suíte de testes coexistam de forma independente e organizada:
 
 ```text
 technova/
