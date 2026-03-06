@@ -1,0 +1,14 @@
+{
+  "name": "technova-ecommerce-lab",
+  "version": "1.0.0",
+  "description": "E-commerce de eletrônicos para testes de QA (Node, Postgres, Cypress)",
+  "main": "backend/index.js",
+  "scripts": {
+    "backend": "node backend/index.js",
+    "frontend": "npx serve frontend",
+    "test": "npx cypress open"
+  },
+  "devDependencies": {
+    "cypress": "^15.11.0"
+  }
+}
