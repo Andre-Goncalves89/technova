@@ -1,5 +1,35 @@
+Dependências
+
 node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+Ambiente e Segurança (NUNCA subir o .env real)
+
 .env
 backend/.env
-backend/node_modules/
+.env.local
+
+Exceções (Garantir que os moldes e manifestos subam sempre)
+
+!.env.example
+!backend/.env.example
+!package.json
+!backend/package.json
+!frontend/package.json
+
+Docker e Base de Dados
+
+postgres_data/
+
+Cypress (Resultados de execução)
+
 cypress/screenshots/
+cypress/videos/
+
+Logs e Ficheiros de Sistema
+
+npm-debug.log*
+yarn-debug.log*
+.DS_Store
+Thumbs.db
