@@ -27,6 +27,14 @@ Antes de iniciar os testes no **TechNova**, certifique-se de ter instalado em su
 
 Siga os passos abaixo obrigatoriamente a partir da **raiz do projeto** (`/technova`):
 
+```bash
+git clone https://github.com/seu-usuario/technova.git
+cd technova
+```
+# Crie o arquivo de ambiente baseado no exemplo
+```
+cp .env.example .env
+```
 ### 📦 Passo 1: Instalação de Dependências
 
 Este comando é responsável por baixar todas as bibliotecas do projeto, incluindo o motor do **Cypress** e ferramentas de servidor estático:
