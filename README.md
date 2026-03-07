@@ -1,6 +1,6 @@
-# **🚀 TECHNOVA - PREMIUM ELECTRONICS LAB**
+# **🚀 TechNova E-commerce Lab (v1.1.0)**
 ---
-O **TechNova** é um laboratório de e-commerce focado em simular cenários reais de desenvolvimento. 
+### Bem-vindo ao **TechNova**, um laboratório de e-commerce de alta performance desenvolvido para simular cenários reais de Automação de Testes (QA). Este projeto integra uma stack moderna (Node.js, PostgreSQL, Docker) com uma suíte de testes robusta em Cypress. 
 
 **Destaques do projeto:**
 * Técnicas avançadas de **Quality Assurance (QA)**.
@@ -9,11 +9,8 @@ O **TechNova** é um laboratório de e-commerce focado em simular cenários reai
 ---
 ## 🛠️ TECNOLOGIAS E FERRAMENTAS
 
-* **Backend**: `Node.js` com `Express` para orquestração da API.
-* **Banco de Dados**: `PostgreSQL` rodando em ambiente containerizado (`Docker`).
-* **Frontend**: Interface Vanilla (`HTML5`, `CSS3`, `JS`) com foco em seletores de teste.
-* **Testes Automatizados**: `Cypress v15.11.0` para validação de fluxos críticos.
-* **Infraestrutura**: Servidor de arquivos estáticos via `serve` no ambiente `WSL: Ubuntu`.
+* **Node.js**(LTS): `Node.js` com `Express` para orquestração da API.
+* **Docker** **&** **Docker compose**: `PostgreSQL` rodando em ambiente containerizado (`Docker`).
 ---
 ## 📋 PRÉ-REQUISITOS
 
@@ -21,8 +18,7 @@ Antes de iniciar os testes no **TechNova**, certifique-se de ter instalado em su
 
 * **Node.js** (Versão `LTS` recomendada).
 * **Docker** & **Docker Compose** (Necessário para subir o banco de dados `Postgres`).
-* **NPM** (Gerenciador de pacotes, geralmente instalado com o Node).
-
+---
 ## 🚀 COMO EXECUTAR O PROJETO
 
 Siga os passos abaixo obrigatoriamente a partir da **raiz do projeto** (`/technova`):
@@ -31,32 +27,16 @@ Siga os passos abaixo obrigatoriamente a partir da **raiz do projeto** (`/techno
 git clone https://github.com/Andre-Goncalves89/technova.git
 cd technova
 ```
-### Crie o arquivo de ambiente na pasta backend baseado no exemplo, e certifique-se de alterar o password e checar o user para que estejam iguais ao DB
+## Executa estes comandos na raiz do projeto:
+* Criação do ecosistema
 ```
-cp .env.example .env
+npm run setup
 ```
-### 📦 Passo 1: Instalação de Dependências
-
-Este comando é responsável por baixar todas as bibliotecas do projeto, incluindo o motor do **Cypress** e ferramentas de servidor estático:
-
-```bash
-npm install
+* Ignição do Ecossistema
 ```
-### 🐳 Passo 2: Infraestrutura de Banco de Dados
-```Comando: 
-docker-compose up -d
+npm run dev
 ```
-### ⚙️ Passo 3: Inicialização dos Serviços
-- Backend
-```
-npm run backend
-```
-
-- Frontend
-```
-npm run frontend
-```
-
+---
 ## 🧪 ESTRATÉGIA DE TESTES (QA)
 
 O projeto **TechNova** adota o **Padrão Ouro** de automação, priorizando a estabilidade e a fácil manutenção da suíte de testes.
