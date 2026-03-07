@@ -28,7 +28,7 @@ Antes de iniciar os testes no **TechNova**, certifique-se de ter instalado em su
 Siga os passos abaixo obrigatoriamente a partir da **raiz do projeto** (`/technova`):
 
 ```bash
-git clone https://github.com/seu-usuario/technova.git
+git clone https://github.com/Andre-Goncalves89/technova.git
 cd technova
 ```
 # Crie o arquivo de ambiente baseado no exemplo
