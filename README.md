@@ -31,7 +31,7 @@ Siga os passos abaixo obrigatoriamente a partir da **raiz do projeto** (`/techno
 git clone https://github.com/Andre-Goncalves89/technova.git
 cd technova
 ```
-# Crie o arquivo de ambiente baseado no exemplo
+### Crie o arquivo de ambiente na pasta backend baseado no exemplo, e certifique-se de alterar o password e checar o user para que estejam iguais ao DB
 ```
 cp .env.example .env
 ```
