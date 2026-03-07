@@ -1,14 +1,30 @@
 {
   "name": "technova-ecommerce-lab",
-  "version": "1.0.0",
-  "description": "E-commerce de eletrônicos para testes de QA (Node, Postgres, Cypress)",
-  "main": "backend/index.js",
+  "version": "1.1.0",
+  "description": "Lab de E-commerce para Testes QA - Padrão Ouro de Automação",
+  "main": "index.js",
   "scripts": {
-    "backend": "node backend/index.js",
-    "frontend": "npx serve frontend",
-    "test": "npx cypress open"
+    "setup": "npm install && cd backend && npm install && cp .env.example .env && cd .. && rm -rf cypress/e2e/1-getting-started cypress/e2e/2-advanced-examples && echo '✅ Ambiente Blindado e Limpo!'",
+    "backend": "cd backend && node index.js",
+    "frontend": "npx serve frontend -p 3000",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "test": "npx cypress run",
+    "test:open": "npx cypress open",
+    "dev": "npm run docker:up && (npm run backend & npm run frontend)"
   },
+  "keywords": [
+    "qa",
+    "testing",
+    "cypress",
+    "node",
+    "postgres",
+    "automation"
+  ],
+  "author": "André Gonçalves",
+  "license": "ISC",
   "devDependencies": {
-    "cypress": "^15.11.0"
+    "cypress": "^13.0.0",
+    "serve": "^14.2.0"
   }
 }
