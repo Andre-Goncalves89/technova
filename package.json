@@ -4,7 +4,7 @@
   "description": "Lab de E-commerce para Testes QA - Padrão Ouro de Automação",
   "main": "index.js",
   "scripts": {
-    "setup": "npm install && cd backend && npm install && cp .env.example .env && cd .. && rm -rf cypress/e2e/1-getting-started cypress/e2e/2-advanced-examples && echo '✅ Ambiente Blindado e Limpo!'",
+    "setup": "npm install && cd backend && npm install && cp backend/.env.example backend/.env && cp backend/.env.example .env && rm -rf cypress/e2e/1-getting-started cypress/e2e/2-advanced-examples && echo '✅ Ambiente Blindado e Limpo!'",
     "backend": "cd backend && node index.js",
     "frontend": "npx serve frontend -p 3000",
     "docker:up": "docker-compose up -d",
