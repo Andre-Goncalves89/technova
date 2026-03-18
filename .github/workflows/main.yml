@@ -1,0 +1,70 @@
+name: TechNova CI - Quality Gate
+
+on:
+  push:
+    branches: [ develop, main ]
+  pull_request:
+    branches: [ develop, main ]
+
+jobs:
+  cypress-run:
+    name: 🧪 Build and Test (Headless)
+    runs-on: ubuntu-latest
+    
+    # Configuração do banco de dados virtual para o GitHub
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: technovapass
+          POSTGRES_DB: technova_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm install
+
+      - name: ⚙️ Setup TechNova Environment (Auto-healing)
+        # Este comando vai correr o teu script que gera os .env no runner
+        run: npm run setup
+
+      - name: 🧪 Run Cypress Tests (Headless)
+        uses: cypress-io/github-action@v6
+        with:
+          # Inicia o backend e frontend em paralelo (npm run dev)
+          start: npm run dev
+          # Aguarda que a API responda antes de disparar os testes
+          wait-on: 'http://localhost:5000/api/v1/products'
+          wait-on-timeout: 120
+          # Executa todos os testes da pasta e2e
+          spec: cypress/e2e/**/*.cy.js
+
+      - name: 📸 Upload Screenshots on Failure
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
+
+      - name: 🎥 Upload Test Videos
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cypress-videos
+          path: cypress/videos
