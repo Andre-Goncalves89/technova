@@ -11,7 +11,7 @@ jobs:
     name: 🧪 Build and Test (Headless)
     runs-on: ubuntu-latest
     
-    # Configuração do banco de dados virtual para o GitHub
+    # O GitHub providencia o Postgres aqui, eliminando a necessidade de Docker local
     services:
       postgres:
         image: postgres:15
@@ -31,28 +31,30 @@ jobs:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
 
-      - name: 🟢 Setup Node.js
+      - name: 🟢 Setup Node.js (V22 para evitar avisos de deprecation)
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
       - name: 📦 Install Dependencies
         run: npm install
 
-      - name: ⚙️ Setup TechNova Environment (Auto-healing)
-        # Este comando vai correr o teu script que gera os .env no runner
+      - name: ⚙️ Setup TechNova Environment
+        # Cria os ficheiros .env necessários no runner
         run: npm run setup
 
-      - name: 🧪 Run Cypress Tests (Headless)
+      - name: 🧪 Run Cypress Tests
         uses: cypress-io/github-action@v6
         with:
-          # Inicia o backend e frontend em paralelo (npm run dev)
-          start: npm run dev
-          # Aguarda que a API responda antes de disparar os testes
+          # AJUSTE CRÍTICO: Não usamos 'npm run dev' porque ele tenta rodar Docker.
+          # Iniciamos o backend e frontend diretamente em background.
+          start: |
+            npm run backend &
+            npm run frontend &
+          # Aguardamos a API estar pronta para aceitar conexões
           wait-on: 'http://localhost:5000/api/v1/products'
           wait-on-timeout: 120
-          # Executa todos os testes da pasta e2e
           spec: cypress/e2e/**/*.cy.js
 
       - name: 📸 Upload Screenshots on Failure
