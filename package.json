@@ -25,6 +25,8 @@
   "license": "ISC",
   "devDependencies": {
     "cypress": "^13.0.0",
+    "dotenv": "^17.3.1",
+    "pg": "^8.20.0",
     "serve": "^14.2.0"
   }
 }
