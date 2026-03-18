@@ -11,7 +11,6 @@ jobs:
     name: 🧪 Build and Test (Headless)
     runs-on: ubuntu-latest
     
-    # O GitHub providencia o Postgres nativo aqui
     services:
       postgres:
         image: postgres:15
@@ -41,18 +40,21 @@ jobs:
         run: npm install
 
       - name: ⚙️ Setup TechNova Environment
-        # Cria os ficheiros .env virtuais no runner
         run: npm run setup
+
+      # PASSO NOVO: Criar as tabelas antes dos servidores subirem
+      - name: 🗄️ Initialize Database Schema
+        run: |
+          sudo apt-get install -y postgresql-client
+          PGPASSWORD=technovapass psql -h localhost -U admin -d technova_db -f backend/init.sql
 
       - name: 🧪 Run Cypress Tests
         uses: cypress-io/github-action@v6
         with:
-          # O SEGREDO: Vírgula separa múltiplos comandos e evita erro de "path argument"
+          # Usamos a vírgula para gerenciar os dois servidores nativamente
           start: npm run backend, npm run frontend
-          # Aguarda a API e o Frontend estarem online para começar
           wait-on: 'http://localhost:5000/api/v1/products, http://localhost:3000'
           wait-on-timeout: 120
-          # Executa todos os specs, incluindo o de sanidade
           spec: cypress/e2e/**/*.cy.js
 
       - name: 📸 Upload Screenshots on Failure
