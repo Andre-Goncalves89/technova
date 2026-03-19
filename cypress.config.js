@@ -24,12 +24,12 @@ module.exports = defineConfig({
             // 1. LIMPEZA (Truncate)
             await client.query("TRUNCATE TABLE products RESTART IDENTITY CASCADE;");
             
-            // 2. SEMEADURA (Seed) - Lendo o teu ficheiro init.sql
+            // 2. SEMEADURA (Seed) - Lendo o ficheiro init.sql
             const sqlPath = path.join(__dirname, 'backend', 'init.sql');
             const sql = fs.readFileSync(sqlPath, 'utf8');
             await client.query(sql);
             
-            // MENSAGEM NOVA (Para saberes que esta versão está ativa)
+            // MENSAGEM NOVA (Para saber que esta versão está ativa)
             console.log("🚀 [SISTEMA] Banco TechNova: LIMPO e SEMEADO com sucesso!");
             return null;
           } catch (err) {
