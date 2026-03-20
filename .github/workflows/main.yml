@@ -10,7 +10,8 @@ jobs:
   cypress-run:
     name: 🧪 Build and Test (Headless)
     runs-on: ubuntu-latest
-    
+
+    # Serviço de Base de Dados para o ambiente de CI
     services:
       postgres:
         image: postgres:15
@@ -33,40 +34,23 @@ jobs:
       - name: 🟢 Setup Node.js (V22)
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
-          cache: 'npm'
+          node-version: 22
 
-      - name: 📦 Install Dependencies
-        run: npm install
+      - name: 📦 Install Root Dependencies
+        run: npm ci
 
-      - name: ⚙️ Setup TechNova Environment
+      # CORREÇÃO CRÍTICA: Instalar dependências dentro da pasta backend
+      - name: 🛠️ Install Backend Dependencies
+        run: cd backend && npm install
+
+      - name: ⚙️ Run TechNova Setup
         run: npm run setup
 
-      # PASSO NOVO: Criar as tabelas antes dos servidores subirem
-      - name: 🗄️ Initialize Database Schema
-        run: |
-          sudo apt-get install -y postgresql-client
-          PGPASSWORD=technovapass psql -h localhost -U admin -d technova_db -f backend/init.sql
-
-      - name: 🧪 Run Cypress Tests
+      - name: 🏁 Cypress Run (E2E)
         uses: cypress-io/github-action@v6
         with:
-          # Usamos a vírgula para gerenciar os dois servidores nativamente
+          # Inicia o backend e o frontend simultaneamente
           start: npm run backend, npm run frontend
           wait-on: 'http://localhost:5000/api/v1/products, http://localhost:3000'
           wait-on-timeout: 120
-          spec: cypress/e2e/**/*.cy.js
-
-      - name: 📸 Upload Screenshots on Failure
-        uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: cypress-screenshots
-          path: cypress/screenshots
-
-      - name: 🎥 Upload Test Videos
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: cypress-videos
-          path: cypress/videos
+          browser: chrome
