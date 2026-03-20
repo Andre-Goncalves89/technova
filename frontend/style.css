@@ -1,62 +1,225 @@
+/* TECHNOVA DESIGN SYSTEM - VERSION 2.2
+   Foco: Legibilidade Profissional e Contraste de Dados (Sugestão QA)
+*/
+
 :root {
-    --bg-color: #0d1117;
+    --bg-dark: #0d1117;
     --card-bg: #161b22;
+    --card-hover: #1c2128;
+    --border-color: #30363d;
     --accent-blue: #58a6ff;
-    --warning-yellow: #f1e05a;
+    --text-main: #f0f6fc;      /* Branco brilhante para títulos */
+    --text-muted: #8b949e;     /* Cinza suave para descrições */
+    --success-green: #238636;
+    --wallet-gold: #d29922;
+    --warning-yellow: #d29922;
     --error-red: #f85149;
-    --text-color: #c9d1d9;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 body {
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    font-family: 'Segoe UI', sans-serif;
-    margin: 0;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    line-height: 1.6;
 }
 
+/* --- HEADER & WALLET --- */
 header {
+    background-color: var(--card-bg);
+    padding: 1rem 5%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo-area {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: var(--accent-blue);
+}
+
+.wallet-display {
+    background: rgba(210, 153, 34, 0.1);
+    border: 1px solid var(--wallet-gold);
+    color: var(--wallet-gold);
+    padding: 8px 16px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+}
+
+/* --- SEARCH SECTION & VALIDATION --- */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
     padding: 2rem;
+}
+
+.search-section {
+    max-width: 600px;
+    margin: 0 auto 3.5rem auto;
+}
+
+.search-bar-container {
+    position: relative;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-    border-bottom: 1px solid #30363d;
 }
 
-.search-container {
-    position: relative;
+.search-bar {
     display: flex;
     gap: 10px;
 }
 
-input {
-    padding: 12px 15px;
-    width: 400px;
-    background: var(--card-bg);
-    border: 2px solid #30363d;
-    border-radius: 8px;
+.search-bar input {
+    flex-grow: 1;
+    background: var(--bg-dark);
+    border: 1px solid var(--border-color);
     color: white;
-    outline: none;
-    transition: 0.3s;
-}
-
-/* Lógica de cores que o André (QA Lead) sugeriu */
-input.warning { border-color: var(--warning-yellow); }
-input.error { border-color: var(--error-red); }
-
-#charCounter {
-    position: absolute;
-    right: 50px;
-    bottom: -20px;
-    font-size: 0.75rem;
-    color: #8b949e;
-}
-
-button {
-    padding: 10px 20px;
-    background: var(--accent-blue);
-    border: none;
+    padding: 14px;
     border-radius: 8px;
-    cursor: pointer;
+    outline: none;
+    font-size: 1rem;
+}
+
+/* Estados de Validação */
+.input-warning { border-color: var(--warning-yellow) !important; box-shadow: 0 0 5px rgba(210, 153, 34, 0.3); }
+.input-error { border-color: var(--error-red) !important; box-shadow: 0 0 5px rgba(248, 81, 73, 0.3); }
+
+.counter-container {
+    text-align: right;
+    font-size: 0.75rem;
+    margin-top: 6px;
+    color: var(--text-muted);
+}
+
+.notification-box {
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 6px;
+    background: rgba(248, 81, 73, 0.1);
+    border: 1px solid var(--error-red);
+    color: var(--error-red);
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+/* --- GRID & CARDS (DESIGN REFURBISHED) --- */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+}
+
+.product-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--accent-blue);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+/* Área da Imagem Separada */
+.image-wrapper {
+    width: 100%;
+    height: 220px;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 2px solid var(--border-color); /* Linha divisória clara */
+}
+
+.product-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.placeholder-box {
+    text-align: center;
+    color: var(--text-muted);
+    opacity: 0.5;
+}
+
+/* Seção de Texto com Fundo Gradiente Sólido (Melhoria de Contraste) */
+.card-content {
+    padding: 20px;
+    flex-grow: 1;
+    background: linear-gradient(180deg, var(--card-bg) 0%, #0d1117 100%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.card-content h3 {
+    font-size: 1.15rem;
+    color: var(--text-main);
+    font-weight: 700;
+}
+
+.card-content p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+    height: 40px;
+    overflow: hidden;
+}
+
+/* Rodapé do Card */
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 15px;
+    border-top: 1px solid rgba(48, 54, 61, 0.5);
+}
+
+.price-tag {
+    color: var(--accent-blue);
+    font-size: 1.3rem;
+    font-weight: 800;
+}
+
+.buy-btn {
+    background: var(--success-green);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
     font-weight: bold;
+    cursor: pointer;
+}
+
+/* Máscara Inicial */
+.home-mask {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 100px 20px;
+    border: 2px dashed var(--border-color);
+    border-radius: 16px;
 }

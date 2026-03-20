@@ -3,36 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TechNova - Boutique de Hardware</title>
+    <title>TechNova - Hardware Lab</title>
+    <!-- Importação de Estilos e Ícones -->
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
+
     <header>
-        <div class="logo">
-            <h1>TechNova</h1>
-            <span>Premium Electronics Lab</span>
+        <div class="logo-area">
+            <i class="fas fa-microchip"></i>
+            <span>TechNova</span>
         </div>
-        
-        <div class="search-box">
-            <input 
-                type="text" 
-                id="searchInput" 
-                placeholder="O que você está procurando hoje?" 
-                maxlength="100"
-                data-cy="search-input"> <button id="searchButton" data-cy="search-button">
-                <i class="fa fa-search"></i>
-            </button>
-            
-            <div id="charCounter" data-cy="char-counter">0/100</div>
+
+        <!-- TN-13: Componente de Saldo para Testes E2E -->
+        <div id="walletDisplay" class="wallet-display" data-cy="wallet-display">
+            <i class="fas fa-wallet"></i>
+            <span id="balanceValue">R$ 0,00</span>
         </div>
     </header>
 
-    <main>
-        <div id="productGrid" class="product-grid">
+    <div class="container">
+        <!-- Secção de Procura com Validação e Contador -->
+        <div class="search-section">
+            <div class="search-bar-container">
+                <div class="search-bar">
+                    <input type="text" id="searchInput" maxlength="100" placeholder="O que vamos testar hoje? (ex: RTX)..." data-cy="search-input">
+                    <button id="searchButton" class="buy-btn" style="width: auto; margin-top: 0; padding: 0 25px;" data-cy="search-btn">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                
+                <!-- TN-R01: Requisito de Contador de Caracteres -->
+                <div class="counter-container">
+                    <span id="charCounter" data-cy="char-counter">0/100</span>
+                </div>
             </div>
-    </main>
 
+            <!-- Notificação Visual de Erro (Regra de Negócio: Campo Vazio ou < 3 caracteres) -->
+            <div id="searchNotification" class="notification-box" style="display: none;" data-cy="search-notification"></div>
+        </div>
+
+        <!-- TN-R02: Home Mask / Grid de Produtos (Injetado via JS) -->
+        <div id="productGrid" class="product-grid" data-cy="product-grid">
+            <!-- A "Máscara" ou os Cards aparecerão aqui conforme a interação -->
+        </div>
+    </div>
+
+    <!-- Script de Lógica Principal -->
     <script src="script.js"></script>
 </body>
 </html>
