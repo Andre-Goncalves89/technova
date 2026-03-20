@@ -1,45 +1,46 @@
--- 1. Cria a tabela se ela não existir
+-- TECHNOVA DATABASE - SCHEMA V2.2 (PREMIUM ASSETS)
+-- Objetivo: Popular o banco com hardware real e imagens de alta fidelidade.
+
+-- 1. Limpeza e Reconstrução
 CREATE TABLE IF NOT EXISTS products (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
+    name VARCHAR(255) NOT NULL,
     description TEXT,
     price DECIMAL(10, 2) NOT NULL,
-    image_url VARCHAR(255),
+    image_url TEXT,
+    category VARCHAR(100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Limpando para garantir o seed do zero
-TRUNCATE TABLE products RESTART IDENTITY;
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    balance DECIMAL(10, 2) DEFAULT 0.00,
+    is_tester BOOLEAN DEFAULT TRUE
+);
 
-INSERT INTO products (name, description, price, image_url) VALUES
--- GPUs (O que já temos + novos)
-('Placa de Vídeo RTX 4090 ASUS ROG Strix', 'A placa mais poderosa para entusiastas de alta performance.', 12500.00, 'gpu_rtx4090.jpg'),
-('Placa de Vídeo RTX 4070 Dual Fan', 'Equilíbrio perfeito entre preço e performance 4K.', 4500.00, 'gpu_rtx4070.jpg'),
-('Placa de Vídeo RX 7900 XTX Radeon', 'A gigante da AMD com 24GB de VRAM.', 7800.00, 'gpu_rx7900.jpg'),
+TRUNCATE TABLE products RESTART IDENTITY CASCADE;
+TRUNCATE TABLE users RESTART IDENTITY CASCADE;
 
--- CPUs
-('Processador AMD Ryzen 9 7950X', '16 núcleos e 32 threads para processamento extremo.', 4500.00, 'cpu_r9.jpg'),
-('Processador Intel Core i9-14900K', 'O rei do single-core para jogos e produtividade.', 4800.00, 'cpu_i9.jpg'),
-('Processador AMD Ryzen 7 7800X3D', 'O melhor processador para jogos do mundo.', 3200.00, 'cpu_r7_x3d.jpg'),
+-- 2. Seed de Produtos com Imagens Reais (Hardware Lab)
+INSERT INTO products (name, description, price, image_url, category) VALUES
+-- GPUs
+('Placa de Vídeo RTX 4090 Phantom', 'O ápice do desempenho para entusiastas de 4K.', 13499.00, 'https://images.unsplash.com/photo-1591488320449-011701bb6704?auto=format&fit=crop&q=80&w=800', 'GPU'),
+('Placa de Vídeo RX 7900 XTX Nitro', 'Arquitetura RDNA 3 para frames ultra velozes.', 7800.00, 'https://images.unsplash.com/photo-1587202377465-320c85024443?auto=format&fit=crop&q=80&w=800', 'GPU'),
 
--- Memória e Armazenamento
-('Memória RAM DDR5 Corsair Vengeance 32GB', 'Velocidade e estabilidade para sistemas de última geração.', 1200.00, 'ram_ddr5.jpg'),
-('Memória RAM RGB G.Skill Trident 64GB', 'Estética premium com altíssima frequência.', 2500.00, 'ram_trident.jpg'),
-('SSD NVMe Samsung 990 Pro 2TB', 'O armazenamento mais rápido do mercado.', 1800.00, 'ssd_990pro.jpg'),
-('SSD Externo SanDisk Extreme 4TB', 'Velocidade de transferência portátil e resistente.', 3200.00, 'ssd_external.jpg'),
+-- Processadores
+('Processador Ryzen 9 7950X3D', 'Tecnologia 3D V-Cache para gamers e criadores.', 4599.00, 'https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?auto=format&fit=crop&q=80&w=800', 'CPU'),
+('Processador Core i9-14900K', 'Performance híbrida de 24 núcleos e 6.0 GHz.', 4100.00, 'https://images.unsplash.com/photo-1555617766-c94804975da3?auto=format&fit=crop&q=80&w=800', 'CPU'),
 
--- Periféricos (Fundamentais para testes de filtros)
-('Teclado Mecânico Razer BlackWidow V4', 'Switches mecânicos táteis com iluminação RGB.', 1400.00, 'kbd_razer.jpg'),
-('Mouse Gamer Logitech G Pro X Superlight', 'Ultra leve e usado pelos melhores pro-players.', 900.00, 'mouse_logitech.jpg'),
-('Headset SteelSeries Arctis Nova Pro', 'Áudio de alta fidelidade com cancelamento de ruído.', 2200.00, 'headset_steelseries.jpg'),
-('Microfone Shure SM7B', 'O padrão da indústria para streaming e podcasts.', 3500.00, 'mic_shure.jpg'),
+-- Periféricos & Outros
+('Cadeira Gamer TechNova Obsidian', 'Ergonomia de ponta com acabamento em couro sintético.', 2400.00, 'https://images.unsplash.com/photo-1598550476439-6847785fce6a?auto=format&fit=crop&q=80&w=800', 'Cadeira'),
+('Teclado Mecânico RGB Pro', 'Switches ópticos lineares para resposta instantânea.', 850.00, 'https://images.unsplash.com/photo-1618384881928-1589f29ee2ad?auto=format&fit=crop&q=80&w=800', 'Teclado'),
+('Monitor Curvo 34" Ultrawide', 'Imersão cinematográfica com taxa de 175Hz.', 3990.00, 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&q=80&w=800', 'Monitor'),
 
--- Monitores e Laptops
-('Monitor Alienware 34 Curved OLED', 'Imersão total com cores vibrantes e preto puro.', 8500.00, 'monitor_alienware.jpg'),
-('Monitor LG UltraGear 27 240Hz', 'Competitivo e rápido para jogos de FPS.', 2800.00, 'monitor_lg.jpg'),
-('Laptop Razer Blade 16', 'Poder de desktop em um corpo fino e elegante.', 25000.00, 'laptop_razer.jpg'),
-('MacBook Pro M3 Max 16', 'A máquina definitiva para desenvolvedores e criadores.', 32000.00, 'macbook_m3.jpg'),
+-- Produto sem imagem para manter teste de Placeholder
+('SSD NVMe 2TB Gen5 HighSpeed', 'Velocidades de leitura até 12.000 MB/s.', 1890.00, '', 'Armazenamento');
 
--- Acessórios
-('Cadeira Gamer Secretlab TITAN Evo', 'Ergonomia de ponta para longas sessões.', 4200.00, 'chair_secretlab.jpg'),
-('Webcam Logitech Brio 4K', 'Imagem cristalina para reuniões e stream.', 1100.00, 'webcam_brio.jpg');
+-- 3. Seed de Usuário Tester com Saldo Fake
+INSERT INTO users (username, email, balance) VALUES
+('tester_andre', 'andre@technova.lab', 10000.00);
