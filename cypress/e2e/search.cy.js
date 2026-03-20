@@ -1,42 +1,66 @@
 /**
- * TechNova - Suite de Testes E2E (Day 36)
- * Alinhado com a Massa de Dados do init.sql oficial
+ * TECHNOVA E2E - SUÍTE DE REGRESSÃO V2.2
+ * Foco: Validação de Busca, Seletores data-cy e Regras de Negócio
  */
 
-describe('Busca por produtos', () => {
-  beforeEach(() => {
-    // Garantimos que o ambiente está limpo antes de cada teste
-    cy.visit('http://localhost:3000');
-  });
+describe('TechNova - Hardware Lab: Busca e Validação de UI', () => {
+    
+    beforeEach(() => {
+        // Visita a aplicação (configurada para localhost:3000)
+        cy.visit('/');
+    });
 
-  it('Deve exibir mensagem de boas-vindas ao carregar', () => {
-    cy.get('[data-cy="welcome-message"]').should('be.visible');
-    cy.get('[data-cy="product-card"]').should('not.exist');
-  });
+    it('Deve exibir a Home Mask e o Saldo Inicial corretamente', () => {
+        // Valida se a máscara de boas-vindas está visível
+        cy.get('[data-cy="home-mask"]').should('be.visible');
+        cy.get('[data-cy="home-mask"]').contains('Bem-vindo ao TechNova Lab');
 
-  it('Deve buscar por palavras chave fora de ordem (ex: RTX placa)', () => {
-    // Usamos termos que SABEMOS que existem no init.sql (RTX 4090)
-    cy.get('#searchInput').type('RTX placa');
-    cy.get('#searchButton').click();
+        // Valida o saldo de R$ 10.000,00 que configuramos no Day 48
+        cy.get('[data-cy="wallet-display"]').should('contain', 'R$ 10.000,00');
+    });
 
-    // Validação de presença
-    cy.get('[data-cy="product-card"]', { timeout: 10000 }).should('have.length.at.least', 1);
-    cy.get('[data-cy="product-name"]').first().should('contain.text', 'Placa de Vídeo');
-  });
+    it('Deve validar o contador de caracteres (Aviso e Erro)', () => {
+        const input = cy.get('[data-cy="search-input"]');
+        const counter = cy.get('[data-cy="char-counter"]');
 
-  it('Deve validar que a busca com acentuação funciona', () => {
-    // "Monitor" ou "Memória" são alvos seguros
-    cy.get('#searchInput').type('Memória');
-    cy.get('#searchButton').click();
+        // Teste de digitação simples
+        input.type('RTX');
+        counter.should('contain', '3/100');
 
-    cy.get('[data-cy="product-card"]').should('be.visible');
-    cy.get('.error-msg').should('not.exist');
-  });
+        // Teste de limite de aviso (90 caracteres)
+        const longText = 'a'.repeat(90);
+        input.clear().type(longText);
+        // Verifica se a classe CSS de aviso foi aplicada
+        input.should('have.class', 'input-warning');
 
-  it('Deve garantir que a busca vazia ou curta dispare aviso', () => {
-    cy.get('#searchInput').type('ab'); // Apenas 2 chars
-    cy.get('#searchButton').click();
+        // Teste de limite de erro (100 caracteres)
+        const maxText = 'e'.repeat(100);
+        input.clear().type(maxText);
+        input.should('have.class', 'input-error');
+    });
 
-    cy.get('[data-cy="search-guidance"]').should('be.visible');
-  });
+    it('Deve exibir notificação de erro ao pesquisar com menos de 3 caracteres', () => {
+        cy.get('[data-cy="search-input"]').type('rt');
+        cy.get('[data-cy="search-btn"]').click();
+
+        // Valida a caixa de notificação customizada (Substituta do alert)
+        cy.get('[data-cy="search-notification"]')
+            .should('be.visible')
+            .and('contain', 'A busca requer no mínimo 3 caracteres');
+    });
+
+    it('Deve realizar uma busca com sucesso e validar o layout dos cards', () => {
+        cy.get('[data-cy="search-input"]').type('RTX 4090');
+        cy.get('[data-cy="search-btn"]').click();
+
+        // Aguarda a renderização dos produtos
+        cy.get('[data-cy="product-grid"]').should('be.visible');
+        
+        // Valida a estrutura do card (conforme sugestão de legibilidade do QA)
+        cy.get('[data-cy="product-card"]').first().within(() => {
+            cy.get('[data-cy="product-name"]').should('be.visible');
+            cy.get('[data-cy="product-price"]').should('contain', 'R$');
+            cy.get('[data-cy="buy-button"]').should('be.visible').and('contain', 'Comprar');
+        });
+    });
 });
