@@ -27,6 +27,7 @@
   "devDependencies": {
     "@faker-js/faker": "^8.4.1",
     "cypress": "^13.17.0",
-    "newman": "^6.1.2"
+    "newman": "^6.1.2",
+    "pg": "^8.11.3"
   }
 }
