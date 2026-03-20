@@ -1,32 +1,22 @@
 {
   "name": "technova-ecommerce-lab",
   "version": "1.1.0",
-  "description": "Lab de E-commerce para Testes QA - Padrão Ouro de Automação",
+  "description": "Lab de E-commerce para estudos de QA e DevOps",
   "main": "index.js",
   "scripts": {
-    "setup": "npm install && npm install --prefix backend && node -e \"const fs=require('fs'); const path=require('path'); const envContent='DB_USER=admin\\nDB_PASSWORD=technovapass\\nDB_HOST=localhost\\nDB_PORT=5432\\nDB_DATABASE=technova_db\\nPORT=5000'; fs.writeFileSync('.env', envContent); fs.writeFileSync(path.join('backend', '.env'), envContent);\" && rm -rf cypress/e2e/1-getting-started cypress/e2e/2-advanced-examples && echo '✅ AMBIENTE BLINDADO: .env gerado na raiz e no backend!'",
     "backend": "cd backend && node index.js",
     "frontend": "npx serve frontend -p 3000",
     "docker:up": "docker-compose up -d",
-    "docker:down": "docker-compose down -v",
-    "test": "npx cypress run",
-    "test:open": "npx cypress open",
-    "dev": "npm run docker:up && (npm run backend & npm run frontend)"
+    "docker:down": "docker-compose down",
+    "setup": "node scripts/setup-env.js",
+    "dev": "npm run docker:up && (npm run backend & npm run frontend)",
+    "test:api": "newman run tests/technova_api.json",
+    "test:e2e": "npx cypress run"
   },
-  "keywords": [
-    "qa",
-    "testing",
-    "cypress",
-    "node",
-    "postgres",
-    "automation"
-  ],
-  "author": "André Gonçalves",
-  "license": "ISC",
   "devDependencies": {
-    "cypress": "^13.0.0",
+    "cypress": "^13.17.0",
     "dotenv": "^17.3.1",
-    "pg": "^8.20.0",
-    "serve": "^14.2.0"
+    "newman": "^6.1.3",
+    "pg": "^8.11.3"
   }
 }
