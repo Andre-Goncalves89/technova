@@ -17,7 +17,6 @@ jobs:
         env:
           POSTGRES_USER: admin
           POSTGRES_PASSWORD: technovapass
-          # Ajustado para 'admin' para evitar o erro "database does not exist"
           POSTGRES_DB: admin 
         ports:
           - 5432:5432
@@ -45,7 +44,6 @@ jobs:
       - name: ⚙️ Run TechNova Setup
         run: npm run setup
 
-      # PASSO VITAL: Criar as tabelas na CI antes dos testes
       - name: 🗄️ Seed Database
         run: |
           PGPASSWORD=technovapass psql -h localhost -U admin -d admin -f backend/init.sql
@@ -57,3 +55,10 @@ jobs:
           wait-on: 'http://localhost:5000/api/v1/products, http://localhost:3000'
           wait-on-timeout: 150
           browser: chrome
+        # CORREÇÃO CRÍTICA: Passando as variáveis para a task do Cypress
+        env:
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_USER: admin
+          DB_PASSWORD: technovapass
+          DB_NAME: admin
