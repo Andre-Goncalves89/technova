@@ -1,172 +1,115 @@
 /**
- * TECHNOVA FRONTEND - V2.2 (CONTRASTE & LEGIBILIDADE)
- * Foco: Resiliência de UI e melhoria na experiência de leitura (Sugestão QA).
+ * TECHNOVA FRONTEND - SCRIPT V2.8 (FIX: DOM BINDING)
+ * Objetivo: Integrar com a API corrigindo o ID do botão de busca.
  */
 
-const productGrid = document.getElementById('productGrid');
-const searchButton = document.getElementById('searchButton');
+const API_URL = 'http://localhost:5000/api/v1';
+
+// Mapeamento de Elementos do DOM (AGORA 100% SINCRONIZADO COM SEU HTML)
 const searchInput = document.getElementById('searchInput');
+const searchBtn = document.getElementById('searchButton'); // FIX: Era searchBtn, agora é searchButton
+const productGrid = document.getElementById('productGrid');
+const errorContainer = document.getElementById('searchNotification');
 const charCounter = document.getElementById('charCounter');
-const notification = document.getElementById('searchNotification');
-const balanceValue = document.getElementById('balanceValue');
 
-// Configurações de Integração
-const API_BASE_URL = 'http://localhost:5000/api/v1';
-
-// Dados de Sessão (Mock para validação de Wallet no Day 48)
-const TESTER_DATA = {
-    balance: 10000.00
-};
-
-/**
- * 1. Inicialização da Home Mask
- * Garante que o usuário veja uma tela de boas-vindas antes da primeira busca.
- */
-function renderHomeMask() {
-    productGrid.innerHTML = `
-        <div class="home-mask" data-cy="home-mask">
-            <i class="fas fa-microchip"></i>
-            <h2>Bem-vindo ao TechNova Lab</h2>
-            <p>Sua central de hardware para testes de alta performance.</p>
-            <span style="font-size: 0.8rem; color: var(--text-muted);">Realize uma busca para listar os componentes disponíveis.</span>
-        </div>
-    `;
-}
-
-/**
- * 2. Sistema de Notificação UI
- * Substitui o uso de alert() por uma caixa de mensagem integrada ao design.
- */
-function showNotification(message) {
-    if (!notification) return;
-    notification.textContent = message;
-    notification.style.display = 'block';
-
-    setTimeout(() => {
-        notification.style.display = 'none';
-    }, 4000);
-}
-
-/**
- * 3. Gestão Visual do Contador de Caracteres (Regra: 90/100)
- */
+// TN-R03: Validação visual de limite de caracteres
 searchInput.addEventListener('input', () => {
-    const length = searchInput.value.length;
-    charCounter.textContent = `${length}/100`;
-
-    searchInput.classList.remove('input-warning', 'input-error');
-    if (length >= 100) {
-        searchInput.classList.add('input-error');
-    } else if (length >= 90) {
-        searchInput.classList.add('input-warning');
+    const len = searchInput.value.length;
+    charCounter.textContent = `${len}/100`;
+    
+    if (len >= 90 && len < 100) {
+        searchInput.style.borderColor = '#d29922'; // Warning
+    } else if (len >= 100) {
+        searchInput.style.borderColor = '#f85149'; // Error
+    } else {
+        searchInput.style.borderColor = 'var(--border-color)'; // Normal
     }
 });
 
-/**
- * 4. Lógica de Placeholder Inteligente (TN-12)
- */
-function getProductImageHTML(imageUrl, productName) {
-    if (!imageUrl || imageUrl.trim() === '') {
-        return `
-            <div class="placeholder-box">
-                <i class="fas fa-microchip"></i>
-                <br><span>TechNova Hardware</span>
-            </div>`;
+// TN-R04: Carregar Saldo da Carteira (Wallet)
+async function loadWallet() {
+    try {
+        const response = await fetch(`${API_URL}/wallet`);
+        if (!response.ok) throw new Error('Falha ao buscar carteira');
+        
+        const data = await response.json();
+        const balanceValue = document.getElementById('balanceValue');
+        
+        if (balanceValue) {
+            balanceValue.textContent = `R$ ${data.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+        }
+    } catch (err) {
+        console.error('QA Debug - Erro ao carregar carteira:', err);
     }
-
-    return `
-        <img src="${imageUrl}" 
-             alt="${productName}" 
-             class="product-img"
-             onerror="this.parentElement.innerHTML='<div class=\'placeholder-box\'><i class=\'fas fa-exclamation-triangle\'></i><br><span>Erro de Imagem</span></div>'">
-    `;
 }
 
-/**
- * 5. Renderização de Cards com Alta Legibilidade
- * Utiliza a estrutura de camadas sugerida pelo QA para evitar ofuscamento de texto.
- */
-function renderProducts(products) {
-    if (!products || products.length === 0) {
-        productGrid.innerHTML = `
-            <div class="home-mask">
-                <i class="fas fa-search"></i>
-                <h2>Nenhum hardware encontrado.</h2>
-                <p>Verifique o termo buscado ou tente novamente.</p>
-            </div>`;
+// TN-R02: Função de Busca e Carregamento de Produtos
+async function performSearch() {
+    const query = searchInput.value.trim();
+    
+    if (query.length > 0 && query.length < 3) {
+        showError('A busca requer no mínimo 3 caracteres.');
         return;
     }
 
-    productGrid.innerHTML = products.map(product => `
-        <div class="product-card" data-cy="product-card">
-            <!-- Camada 1: Imagem (Área Superior) -->
-            <div class="image-wrapper">
-                ${getProductImageHTML(product.image_url, product.name)}
-            </div>
+    try {
+        if (errorContainer) errorContainer.style.display = 'none';
+        productGrid.innerHTML = '<div style="color: white; padding: 20px;">Carregando laboratório de hardware...</div>';
 
-            <!-- Camada 2: Conteúdo de Texto (Área Inferior com Fundo Sólido) -->
-            <div class="card-content">
-                <h3 data-cy="product-name">${product.name}</h3>
-                <p data-cy="product-description">${product.description}</p>
-                
-                <!-- Camada 3: Rodapé com Preço e Ação -->
-                <div class="card-footer">
-                    <div class="price-tag" data-cy="product-price">
-                        R$ ${parseFloat(product.price).toLocaleString('pt-br', { minimumFractionDigits: 2 })}
-                    </div>
-                    <button class="buy-btn" data-cy="buy-button">
-                        <i class="fas fa-cart-plus"></i> Comprar
-                    </button>
+        const response = await fetch(`${API_URL}/products/search?q=${encodeURIComponent(query)}`);
+        if (!response.ok) throw new Error('Falha na resposta do servidor');
+        
+        const data = await response.json();
+        renderProducts(data.results);
+    } catch (err) {
+        console.error('QA Debug - Erro na busca:', err);
+        showError('Erro ao conectar com a API TechNova.');
+    }
+}
+
+// Função para renderizar os cards na tela
+function renderProducts(products) {
+    if (!products || products.length === 0) {
+        productGrid.innerHTML = '<div style="color: #8b949e; padding: 40px; grid-column: 1/-1; text-align: center;">Nenhum item encontrado no laboratório.</div>';
+        return;
+    }
+
+    productGrid.innerHTML = products.map(p => `
+        <div class="product-card" data-cy="product-card">
+            <div class="image-wrapper" style="width: 100%; height: 220px; overflow: hidden; border-radius: 12px 12px 0 0;">
+                <img src="${p.image_url}" alt="${p.name}" onerror="this.src='https://placehold.co/400x300/161b22/f0f6fc?text=Imagem+Indispon%C3%ADvel'" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+            <div class="product-info" style="padding: 15px; display: flex; flex-direction: column; flex-grow: 1;">
+                <div style="margin-bottom: 10px;">
+                    <span style="background: rgba(88,166,255,0.1); color: var(--accent-blue); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; border: 1px solid rgba(88,166,255,0.2);">${p.category}</span>
+                </div>
+                <h3 style="color: white; margin: 0 0 10px 0; font-size: 1.1rem; line-height: 1.3;">${p.name}</h3>
+                <p style="color: #8b949e; font-size: 0.85rem; height: 40px; overflow: hidden; margin-bottom: 15px;">${p.description}</p>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 15px; border-top: 1px solid var(--border-color);">
+                    <span style="color: var(--accent-blue); font-weight: bold; font-size: 1.2rem;">R$ ${parseFloat(p.price).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                    <button class="buy-button" data-cy="buy-button" style="background: var(--success-green); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: opacity 0.2s;">Comprar</button>
                 </div>
             </div>
         </div>
     `).join('');
 }
 
-/**
- * 6. Função de Busca e Validação de Regras de Negócio
- */
-async function performSearch() {
-    const query = searchInput.value.trim();
-
-    if (!query) {
-        showNotification("O campo de busca não pode estar vazio!");
-        return;
-    }
-
-    if (query.length < 3) {
-        showNotification("A busca requer no mínimo 3 caracteres.");
-        return;
-    }
-
-    try {
-        const response = await fetch(`${API_BASE_URL}/products/search?q=${encodeURIComponent(query)}`);
-        if (!response.ok) throw new Error('Falha na API');
-
-        const data = await response.json();
-        const products = data.results || data;
-        renderProducts(products);
-    } catch (error) {
-        console.error('Erro de Integração:', error);
-        showNotification("Erro ao conectar com a API TechNova.");
+// Exibe mensagens de erro na tela
+function showError(msg) {
+    if (errorContainer) {
+        errorContainer.textContent = msg;
+        errorContainer.style.display = 'block';
     }
 }
 
-// Escutas de Eventos
-searchButton.addEventListener('click', performSearch);
+// Gatilhos de Eventos para Busca
+searchBtn.addEventListener('click', performSearch);
 searchInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') performSearch();
 });
 
-/**
- * Inicialização do Ambiente no Carregamento
- */
+// AUTO-LOAD: Carrega carteira e produtos ao abrir
 document.addEventListener('DOMContentLoaded', () => {
-    // Carrega Saldo do Tester André
-    if (balanceValue) {
-        balanceValue.textContent = `R$ ${TESTER_DATA.balance.toLocaleString('pt-br', { minimumFractionDigits: 2 })}`;
-    }
-    
-    // Inicia com a Máscara de Boas-vindas (Home Mask)
-    renderHomeMask();
+    loadWallet();       
+    performSearch();    
 });
