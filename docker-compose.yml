@@ -1,19 +1,47 @@
-version: '3.8'
-
+# TECHNOVA INFRASTRUCTURE V2.8 - LIVE RELOAD
 services:
   db:
-    image: postgres:15
     container_name: technova_db
+    image: postgres:15
     restart: always
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: technovapass
-      POSTGRES_DB: technova_db
+      POSTGRES_DB: admin
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
       - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d admin"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
-volumes:
-  postgres_data:
+  backend:
+    container_name: technova_backend
+    build:
+      context: ./backend
+    ports:
+      - "5000:5000"
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=admin
+      - DB_PASSWORD=technovapass
+      - DB_NAME=admin
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    container_name: technova_frontend
+    build:
+      context: ./frontend
+    ports:
+      - "3000:3000"
+    # A MÁGICA: O Docker agora lê o código ao vivo da tua pasta frontend
+    volumes:
+      - ./frontend:/app
+    depends_on:
+      - backend
