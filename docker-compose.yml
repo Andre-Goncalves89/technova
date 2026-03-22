@@ -1,4 +1,4 @@
-# TECHNOVA INFRASTRUCTURE V2.8 - LIVE RELOAD
+# TECHNOVA INFRASTRUCTURE V3.0 - DOCKER READY & CI/CD RESILIENT
 services:
   db:
     container_name: technova_db
@@ -14,9 +14,10 @@ services:
       - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U admin -d admin"]
-      interval: 5s
+      # FIX: Aumentamos a paciência do Docker para servidores lentos do GitHub Actions
+      interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
 
   backend:
     container_name: technova_backend
@@ -40,7 +41,6 @@ services:
       context: ./frontend
     ports:
       - "3000:3000"
-    # A MÁGICA: O Docker agora lê o código ao vivo da tua pasta frontend
     volumes:
       - ./frontend:/app
     depends_on:
