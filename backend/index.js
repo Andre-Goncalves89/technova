@@ -1,84 +1,126 @@
-/**
- * TECHNOVA BACKEND - VERSÃO 2.7 (DOCKER + WALLET READY)
- * Objetivo: Servir produtos e saldo da carteira para o laboratório de QA.
- */
-
 const express = require('express');
-const { Pool } = require('pg');
 const cors = require('cors');
-require('dotenv').config();
+const { Pool } = require('pg');
+
+// Importações do Swagger
+const swaggerUi = require('swagger-ui-express');
+const swaggerJsdoc = require('swagger-jsdoc');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
-
-// Configuração do Pool de Conexão
-const pool = new Pool({
-    host: process.env.DB_HOST || 'localhost',
-    port: process.env.DB_PORT || 5432,
-    user: process.env.DB_USER || 'admin',
-    password: process.env.DB_PASSWORD || 'technovapass',
-    database: process.env.DB_NAME || 'admin',
-});
-
 app.use(cors());
 app.use(express.json());
 
-// Log de Requisições para Debug de QA
-app.use((req, res, next) => {
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-    next();
+// Configuração do Banco de Dados
+const pool = new Pool({
+  host: process.env.DB_HOST || 'localhost',
+  port: process.env.DB_PORT || 5432,
+  user: process.env.DB_USER || 'admin',
+  password: process.env.DB_PASSWORD || 'technovapass',
+  database: process.env.DB_NAME || 'admin',
 });
 
-// --- ENDPOINTS DA API ---
-
-// 1. Busca de Produtos (TN-R02)
-app.get('/api/v1/products/search', async (req, res) => {
-    const { q } = req.query;
-    try {
-        const queryText = q 
-            ? 'SELECT * FROM products WHERE name ILIKE $1 OR description ILIKE $1'
-            : 'SELECT * FROM products';
-        
-        const values = q ? [`%${q}%`] : [];
-        const result = await pool.query(queryText, values);
-        
-        res.json({
-            count: result.rows.length,
-            results: result.rows
-        });
-    } catch (err) {
-        console.error('Erro na Busca:', err.message);
-        res.status(500).json({ error: 'Erro interno no servidor de banco de dados.' });
+// --- CONFIGURAÇÃO DO SWAGGER (OPENAPI NATIVA EM JSON) ---
+// Ao usar JSON em vez de comentários YAML, eliminamos 100% dos erros de formatação.
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'TechNova API',
+      version: '3.0.0',
+      description: 'Documentação oficial da API do laboratório TechNova. Feita para testes de QA.',
+      contact: {
+        name: 'QA Lead (André Gonçalves)',
+      },
+    },
+    servers: [
+      {
+        url: 'http://localhost:5000',
+        description: 'Servidor Local (Docker)',
+      },
+    ],
+    paths: {
+      '/api/v1/health': {
+        get: {
+          summary: 'Verifica o estado da API',
+          responses: {
+            '200': { description: 'API online' }
+          }
+        }
+      },
+      '/api/v1/wallet': {
+        get: {
+          summary: 'Retorna o saldo da carteira do utilizador teste',
+          responses: {
+            '200': { description: 'Saldo retornado com sucesso' },
+            '404': { description: 'Usuário não encontrado' },
+            '500': { description: 'Erro interno no servidor' }
+          }
+        }
+      },
+      '/api/v1/products/search': {
+        get: {
+          summary: 'Pesquisa produtos no catálogo',
+          parameters: [
+            {
+              in: 'query',
+              name: 'q',
+              schema: { type: 'string' },
+              description: 'Termo de pesquisa (ex RTX)'
+            }
+          ],
+          responses: {
+            '200': { description: 'Lista de produtos encontrada' },
+            '500': { description: 'Erro interno no servidor' }
+          }
+        }
+      }
     }
+  },
+  apis: [], // Deixamos vazio porque as rotas já estão definidas acima
+};
+
+const swaggerDocs = swaggerJsdoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+// ----------------------------------------
+
+// ROTAS DA API (Agora limpas, sem comentários gigantes)
+app.get('/api/v1/health', (req, res) => {
+  res.status(200).json({ status: 'TechNova Backend V3.0 Online!' });
 });
 
-// 2. Rota de Carteira (TN-R04) - NOVO!
-// Resolve o problema do saldo R$ 0,00
 app.get('/api/v1/wallet', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT balance FROM users WHERE username = $1', ['tester_andre']);
+    if (result.rows.length > 0) {
+      res.json({ balance: parseFloat(result.rows[0].balance) });
+    } else {
+      res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/v1/products/search', async (req, res) => {
+    const query = req.query.q || '';
     try {
-        // Retornamos o saldo fixo de R$ 10.000,00 definido para o Day 49
-        res.json({ balance: 10000.00 });
+        let result;
+        if (query.length === 0) {
+            result = await pool.query('SELECT * FROM products ORDER BY id ASC');
+        } else {
+            result = await pool.query(
+                'SELECT * FROM products WHERE name ILIKE $1 OR category ILIKE $1 ORDER BY id ASC',
+                [`%${query}%`]
+            );
+        }
+        res.json({ results: result.rows });
     } catch (err) {
-        res.status(500).json({ error: 'Erro ao buscar saldo da carteira.' });
+        res.status(500).json({ error: err.message });
     }
 });
 
-// 3. Healthcheck
-app.get('/api/v1/health', async (req, res) => {
-    try {
-        await pool.query('SELECT 1');
-        res.json({ status: 'online', database: 'connected' });
-    } catch (err) {
-        res.status(500).json({ status: 'degraded', database: 'disconnected' });
-    }
-});
-
-// Inicialização com binding 0.0.0.0 para Docker
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`
-    🚀 TechNova Backend V2.7 Online!
-    📡 Endpoint: http://localhost:${PORT}/api/v1
-    🗄️ Database Host: ${process.env.DB_HOST || 'localhost'}
-    💰 Wallet API: Ativa (R$ 10.000,00)
-    `);
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`🚀 TechNova Backend V3.0 Online na porta ${PORT}`);
+  console.log(`📖 Swagger Docs disponível em: http://localhost:${PORT}/api-docs`);
 });
