@@ -26,8 +26,8 @@ describe('TechNova Lab - Sanity Check: Base de Dados Dinâmica', () => {
         cy.get('[data-cy="product-card"]').should('have.length.at.least', 1);
         cy.get('[data-cy="product-grid"]').should('not.contain', 'RX 7900'); // Garante que AMD não vaza aqui
 
-        // 2. Busca por RX (AMD)
-        cy.get('#searchInput').clear().type('RX');
+       // 2. Busca por RX (AMD) - Alterado para "RX 7" para passar na regra de 3 caracteres
+        cy.get('#searchInput').clear().type('RX 7');
         cy.get('#searchButton').click();
         cy.get('[data-cy="product-card"]').should('have.length.at.least', 1);
         cy.get('[data-cy="product-grid"]').should('not.contain', 'RTX'); // Garante que Nvidia sumiu
