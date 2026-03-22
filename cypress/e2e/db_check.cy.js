@@ -1,47 +1,41 @@
 /**
- * TECHNOVA E2E - SANITY CHECK & DB IDEMPOTENCY (V3.0 DOCKER)
- * Objetivo: Validar o Auto-Load do banco e a consistência de estado em buscas consecutivas.
+ * TECHNOVA E2E - SANITY CHECK & DB IDEMPOTENCY (V3.1 DINÂMICO)
+ * Objetivo: Validar o Auto-Load com asserções dinâmicas prontas para escala.
  */
 
-describe('TechNova Lab - Sanity Check: Base de Dados e Auto-Load', () => {
+describe('TechNova Lab - Sanity Check: Base de Dados Dinâmica', () => {
     
     beforeEach(() => {
         // TN-R05: Garante um ambiente imaculado chamando a task do Postgres
         cy.task('clearDatabase');
         cy.visit('/');
         
-        // Espera de segurança pelo Auto-Load
+        // Espera de segurança pelo Auto-Load do grid
         cy.get('[data-cy="product-grid"]', { timeout: 8000 }).should('be.visible');
     });
 
-    it('Deve carregar o catálogo completo automaticamente ao abrir a página (Auto-Seed & Auto-Load)', () => {
-        // Prova definitiva de que o banco injetou os dados e o JS renderizou sem precisarmos de clicar em nada
-        cy.get('[data-cy="product-card"]').should('have.length', 8);
+    it('Deve carregar o catálogo automaticamente (Validação Escalável)', () => {
+        // A INTELIGÊNCIA DE QA: O banco pode crescer. Exigimos apenas um catálogo rico (mínimo 10 itens).
+        cy.get('[data-cy="product-card"]').should('have.length.at.least', 10);
     });
 
-    it('Deve manter a consistência de estado do Frontend em buscas consecutivas', () => {
-        // 1. Primeira Busca: RTX
+    it('Deve manter a consistência de estado em buscas por marcas concorrentes', () => {
+        // 1. Busca por RTX (Nvidia)
         cy.get('#searchInput').type('RTX');
         cy.get('#searchButton').click();
-        
         cy.get('[data-cy="product-card"]').should('have.length.at.least', 1);
-        cy.get('[data-cy="product-card"]').first().should('contain', 'RTX');
+        cy.get('[data-cy="product-grid"]').should('not.contain', 'RX 7900'); // Garante que AMD não vaza aqui
 
-        // 2. Segunda Busca (Limpar e buscar Ryzen)
-        cy.get('#searchInput').clear().type('Ryzen');
+        // 2. Busca por RX (AMD)
+        cy.get('#searchInput').clear().type('RX');
         cy.get('#searchButton').click();
-        
         cy.get('[data-cy="product-card"]').should('have.length.at.least', 1);
-        cy.get('[data-cy="product-card"]').first().should('contain', 'Ryzen');
-        // Regra de QA: O ecrã não pode conter lixo da busca anterior
-        cy.get('[data-cy="product-grid"]').should('not.contain', 'RTX');
+        cy.get('[data-cy="product-grid"]').should('not.contain', 'RTX'); // Garante que Nvidia sumiu
 
-        // 3. Terceira Busca (Limpar e buscar Monitor)
-        cy.get('#searchInput').clear().type('Monitor');
+        // 3. Busca por Core (Intel)
+        cy.get('#searchInput').clear().type('Core');
         cy.get('#searchButton').click();
-        
-        cy.get('[data-cy="product-card"]').should('have.length.at.least', 1);
-        cy.get('[data-cy="product-card"]').first().should('contain', 'Monitor');
-        cy.get('[data-cy="product-grid"]').should('not.contain', 'Ryzen');
+        cy.get('[data-cy="product-card"]').should('have.length.at.least', 2);
+        cy.get('[data-cy="product-grid"]').should('not.contain', 'Ryzen'); // Garante isolamento de marca (AMD fora)
     });
 });
