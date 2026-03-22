@@ -1,64 +1,37 @@
-name: TechNova CI - Quality Gate
+name: TechNova CI/CD (Docker Ready)
 
 on:
   push:
-    branches: [ develop, main ]
+    branches: [ "develop", "main" ]
   pull_request:
-    branches: [ develop, main ]
+    branches: [ "develop", "main" ]
 
 jobs:
-  cypress-run:
-    name: 🧪 Build and Test (Headless)
+  e2e-testing:
+    # Usaremos o Ubuntu que é o padrão ouro para rodar Docker no GitHub Actions
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_USER: admin
-          POSTGRES_PASSWORD: technovapass
-          POSTGRES_DB: admin 
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
-      - name: 📥 Checkout Repository
+      - name: 📥 Checkout do Repositório
         uses: actions/checkout@v4
 
-      - name: 🟢 Setup Node.js (V22)
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: 📦 Install Root Dependencies
-        run: npm ci
-
-      - name: 🛠️ Install Backend Dependencies
-        run: cd backend && npm install
-
-      - name: ⚙️ Run TechNova Setup
-        run: npm run setup
-
-      - name: 🗄️ Seed Database
+      - name: 🔐 Criar arquivo .env para o Docker
         run: |
-          PGPASSWORD=technovapass psql -h localhost -U admin -d admin -f backend/init.sql
+          echo "DB_HOST=db" > .env
+          echo "DB_PORT=5432" >> .env
+          echo "DB_USER=admin" >> .env
+          echo "DB_PASSWORD=technovapass" >> .env
+          echo "DB_NAME=admin" >> .env
 
-      - name: 🏁 Cypress Run (E2E)
+      - name: 🐳 Subir Infraestrutura Full Stack (Docker Compose)
+        run: docker compose up -d --build
+
+      - name: 📦 Instalar dependências locais (Cypress)
+        run: npm install
+
+      - name: 🧪 Executar Testes E2E (Cypress)
         uses: cypress-io/github-action@v6
         with:
-          start: npm run backend, npm run frontend
-          wait-on: 'http://localhost:5000/api/v1/products, http://localhost:3000'
-          wait-on-timeout: 150
-          browser: chrome
-        # CORREÇÃO CRÍTICA: Passando as variáveis para a task do Cypress
-        env:
-          DB_HOST: localhost
-          DB_PORT: 5432
-          DB_USER: admin
-          DB_PASSWORD: technovapass
-          DB_NAME: admin
+          # O Cypress vai aguardar o Frontend e a API estarem 100% online antes de testar
+          wait-on: 'http://localhost:3000, http://localhost:5000/api/v1/wallet'
+          wait-on-timeout: 120
