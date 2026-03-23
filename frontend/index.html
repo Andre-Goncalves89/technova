@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TechNova - Hardware Lab</title>
-    <!-- Importação de Estilos e Ícones -->
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -15,16 +14,21 @@
             <i class="fas fa-microchip"></i>
             <span>TechNova</span>
         </div>
-
-        <!-- TN-13: Componente de Saldo para Testes E2E -->
-        <div id="walletDisplay" class="wallet-display" data-cy="wallet-display">
-            <i class="fas fa-wallet"></i>
-            <span id="balanceValue">R$ 0,00</span>
+        
+        <div class="header-actions">
+            <div id="walletDisplay" class="wallet-display" data-cy="wallet-display">
+                <i class="fas fa-wallet"></i>
+                <span id="balanceValue">R$ 0,00</span>
+            </div>
+            
+            <div id="cartOpenBtn" class="cart-icon" data-cy="cart-open-btn">
+                <i class="fas fa-shopping-cart"></i>
+                <span id="cartBadge" class="cart-badge" data-cy="cart-badge">0</span>
+            </div>
         </div>
     </header>
 
     <div class="container">
-        <!-- Secção de Procura com Validação e Contador -->
         <div class="search-section">
             <div class="search-bar-container">
                 <div class="search-bar">
@@ -34,23 +38,44 @@
                     </button>
                 </div>
                 
-                <!-- TN-R01: Requisito de Contador de Caracteres -->
                 <div class="counter-container">
                     <span id="charCounter" data-cy="char-counter">0/100</span>
                 </div>
             </div>
-
-            <!-- Notificação Visual de Erro (Regra de Negócio: Campo Vazio ou < 3 caracteres) -->
+            
             <div id="searchNotification" class="notification-box" style="display: none;" data-cy="search-notification"></div>
         </div>
 
-        <!-- TN-R02: Home Mask / Grid de Produtos (Injetado via JS) -->
         <div id="productGrid" class="product-grid" data-cy="product-grid">
-            <!-- A "Máscara" ou os Cards aparecerão aqui conforme a interação -->
+            <!-- Os cards aparecerão aqui -->
         </div>
     </div>
 
-    <!-- Script de Lógica Principal -->
+    <!-- SIDEBAR DO CARRINHO DE COMPRAS -->
+    <div id="cartOverlay" class="cart-overlay" data-cy="cart-overlay"></div>
+    
+    <div id="cartSidebar" class="cart-sidebar" data-cy="cart-sidebar">
+        <div class="cart-header">
+            <h2><i class="fas fa-shopping-cart"></i> Seu Carrinho</h2>
+            <button id="cartCloseBtn" class="close-btn" data-cy="cart-close-btn">&times;</button>
+        </div>
+        
+        <div id="cartItems" class="cart-items" data-cy="cart-items">
+            <div class="empty-cart-msg">Seu laboratório de compras está vazio.</div>
+        </div>
+        
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>Total Estimado:</span>
+                <span id="cartTotalValue" data-cy="cart-total-value">R$ 0,00</span>
+            </div>
+            <!-- FIX DESIGN: Classe alterada de buy-button para buy-btn -->
+            <button id="checkoutBtn" class="buy-btn" style="width: 100%; font-size: 1.1rem; padding: 15px;" data-cy="checkout-btn">
+                <i class="fas fa-check-circle"></i> Finalizar Compra
+            </button>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>

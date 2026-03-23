@@ -20,7 +20,7 @@ const pool = new Pool({
 });
 
 // --- CONFIGURAÇÃO DO SWAGGER (OPENAPI NATIVA EM JSON) ---
-// Ao usar JSON em vez de comentários YAML, eliminamos 100% dos erros de formatação.
+// Ao usar JSON em vez de comentários YAML, elimino 100% dos erros de formatação.
 const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
@@ -76,7 +76,7 @@ const swaggerOptions = {
       }
     }
   },
-  apis: [], // Deixamos vazio porque as rotas já estão definidas acima
+  apis: [], // Deixei vazio porque as rotas já estão definidas acima
 };
 
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
