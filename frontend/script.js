@@ -1,115 +1,203 @@
-/**
- * TECHNOVA FRONTEND - SCRIPT V2.8 (FIX: DOM BINDING)
- * Objetivo: Integrar com a API corrigindo o ID do botão de busca.
- */
-
-const API_URL = 'http://localhost:5000/api/v1';
-
-// Mapeamento de Elementos do DOM (AGORA 100% SINCRONIZADO COM SEU HTML)
-const searchInput = document.getElementById('searchInput');
-const searchBtn = document.getElementById('searchButton'); // FIX: Era searchBtn, agora é searchButton
-const productGrid = document.getElementById('productGrid');
-const errorContainer = document.getElementById('searchNotification');
-const charCounter = document.getElementById('charCounter');
-
-// TN-R03: Validação visual de limite de caracteres
-searchInput.addEventListener('input', () => {
-    const len = searchInput.value.length;
-    charCounter.textContent = `${len}/100`;
-    
-    if (len >= 90 && len < 100) {
-        searchInput.style.borderColor = '#d29922'; // Warning
-    } else if (len >= 100) {
-        searchInput.style.borderColor = '#f85149'; // Error
-    } else {
-        searchInput.style.borderColor = 'var(--border-color)'; // Normal
-    }
-});
-
-// TN-R04: Carregar Saldo da Carteira (Wallet)
-async function loadWallet() {
-    try {
-        const response = await fetch(`${API_URL}/wallet`);
-        if (!response.ok) throw new Error('Falha ao buscar carteira');
-        
-        const data = await response.json();
-        const balanceValue = document.getElementById('balanceValue');
-        
-        if (balanceValue) {
-            balanceValue.textContent = `R$ ${data.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
-        }
-    } catch (err) {
-        console.error('QA Debug - Erro ao carregar carteira:', err);
-    }
-}
-
-// TN-R02: Função de Busca e Carregamento de Produtos
-async function performSearch() {
-    const query = searchInput.value.trim();
-    
-    if (query.length > 0 && query.length < 3) {
-        showError('A busca requer no mínimo 3 caracteres.');
-        return;
-    }
-
-    try {
-        if (errorContainer) errorContainer.style.display = 'none';
-        productGrid.innerHTML = '<div style="color: white; padding: 20px;">Carregando laboratório de hardware...</div>';
-
-        const response = await fetch(`${API_URL}/products/search?q=${encodeURIComponent(query)}`);
-        if (!response.ok) throw new Error('Falha na resposta do servidor');
-        
-        const data = await response.json();
-        renderProducts(data.results);
-    } catch (err) {
-        console.error('QA Debug - Erro na busca:', err);
-        showError('Erro ao conectar com a API TechNova.');
-    }
-}
-
-// Função para renderizar os cards na tela
-function renderProducts(products) {
-    if (!products || products.length === 0) {
-        productGrid.innerHTML = '<div style="color: #8b949e; padding: 40px; grid-column: 1/-1; text-align: center;">Nenhum item encontrado no laboratório.</div>';
-        return;
-    }
-
-    productGrid.innerHTML = products.map(p => `
-        <div class="product-card" data-cy="product-card">
-            <div class="image-wrapper" style="width: 100%; height: 220px; overflow: hidden; border-radius: 12px 12px 0 0;">
-                <img src="${p.image_url}" alt="${p.name}" onerror="this.src='https://placehold.co/400x300/161b22/f0f6fc?text=Imagem+Indispon%C3%ADvel'" style="width: 100%; height: 100%; object-fit: cover;">
-            </div>
-            <div class="product-info" style="padding: 15px; display: flex; flex-direction: column; flex-grow: 1;">
-                <div style="margin-bottom: 10px;">
-                    <span style="background: rgba(88,166,255,0.1); color: var(--accent-blue); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; border: 1px solid rgba(88,166,255,0.2);">${p.category}</span>
-                </div>
-                <h3 style="color: white; margin: 0 0 10px 0; font-size: 1.1rem; line-height: 1.3;">${p.name}</h3>
-                <p style="color: #8b949e; font-size: 0.85rem; height: 40px; overflow: hidden; margin-bottom: 15px;">${p.description}</p>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 15px; border-top: 1px solid var(--border-color);">
-                    <span style="color: var(--accent-blue); font-weight: bold; font-size: 1.2rem;">R$ ${parseFloat(p.price).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-                    <button class="buy-button" data-cy="buy-button" style="background: var(--success-green); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: opacity 0.2s;">Comprar</button>
-                </div>
-            </div>
-        </div>
-    `).join('');
-}
-
-// Exibe mensagens de erro na tela
-function showError(msg) {
-    if (errorContainer) {
-        errorContainer.textContent = msg;
-        errorContainer.style.display = 'block';
-    }
-}
-
-// Gatilhos de Eventos para Busca
-searchBtn.addEventListener('click', performSearch);
-searchInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') performSearch();
-});
-
-// AUTO-LOAD: Carrega carteira e produtos ao abrir
 document.addEventListener('DOMContentLoaded', () => {
-    loadWallet();       
-    performSearch();    
+    // ==========================================
+    // 1. CONFIGURAÇÕES E ESTADO GLOBAL
+    // ==========================================
+    const API_URL = 'http://localhost:5000/api/v1';
+    const WALLET_BALANCE = 10000.00; // Regra de Negócio: Limite da Carteira
+    let cart = []; // Estado do Carrinho
+
+    // ==========================================
+    // 2. MAPEAMENTO DO DOM
+    // ==========================================
+    const searchInput = document.getElementById('searchInput');
+    const searchButton = document.getElementById('searchButton');
+    const charCounter = document.getElementById('charCounter');
+    const searchNotification = document.getElementById('searchNotification');
+    const productGrid = document.getElementById('productGrid');
+    
+    // Elementos do Carrinho
+    const cartOpenBtn = document.getElementById('cartOpenBtn');
+    const cartCloseBtn = document.getElementById('cartCloseBtn');
+    const cartSidebar = document.getElementById('cartSidebar');
+    const cartOverlay = document.getElementById('cartOverlay');
+    const cartItemsContainer = document.getElementById('cartItems');
+    const cartTotalValue = document.getElementById('cartTotalValue');
+    const cartBadge = document.getElementById('cartBadge');
+    const balanceValue = document.getElementById('balanceValue');
+    const checkoutBtn = document.getElementById('checkoutBtn'); 
+
+    // Inicializa a carteira visualmente
+    balanceValue.textContent = formatCurrency(WALLET_BALANCE);
+
+    // ==========================================
+    // 3. LÓGICA DO CARRINHO DE COMPRAS
+    // ==========================================
+    
+    function toggleCart() {
+        cartSidebar.classList.toggle('active');
+        cartOverlay.classList.toggle('active');
+    }
+
+    cartOpenBtn.addEventListener('click', toggleCart);
+    cartCloseBtn.addEventListener('click', toggleCart);
+    cartOverlay.addEventListener('click', toggleCart);
+
+    // Adicionar ao Carrinho com Validação de QA
+    window.addToCart = function(id, name, price) {
+        const currentTotal = cart.reduce((sum, item) => sum + item.price, 0);
+        
+        // Validação da Regra de Negócio: Impede gastar mais do que tem na carteira
+        if (currentTotal + price > WALLET_BALANCE) {
+            showNotification(`❌ Saldo insuficiente! O limite da sua carteira é ${formatCurrency(WALLET_BALANCE)}.`, 'error');
+            return; // Bloqueia a execução
+        }
+
+        cart.push({ id, name, price });
+        updateCartUI();
+        showNotification(`✅ ${name} adicionado ao carrinho!`, 'success');
+    };
+
+    // Atualiza a Interface do Carrinho e a Carteira
+    function updateCartUI() {
+        cartBadge.textContent = cart.length;
+        const total = cart.reduce((sum, item) => sum + item.price, 0);
+        cartTotalValue.textContent = formatCurrency(total);
+        balanceValue.textContent = formatCurrency(WALLET_BALANCE - total);
+
+        cartItemsContainer.innerHTML = '';
+        if (cart.length === 0) {
+            cartItemsContainer.innerHTML = '<div class="empty-cart-msg">Seu laboratório de compras está vazio.</div>';
+            return;
+        }
+
+        cart.forEach((item, index) => {
+            const itemElement = document.createElement('div');
+            itemElement.style.borderBottom = '1px solid #333';
+            itemElement.style.paddingBottom = '10px';
+            itemElement.style.display = 'flex';
+            itemElement.style.justifyContent = 'space-between';
+            itemElement.style.alignItems = 'center';
+            
+            itemElement.innerHTML = `
+                <div>
+                    <div style="font-size: 0.9rem; font-weight: bold;">${item.name}</div>
+                    <div style="color: var(--accent-blue);">${formatCurrency(item.price)}</div>
+                </div>
+                <button onclick="removeFromCart(${index})" style="background: none; border: none; color: var(--error-red); cursor: pointer; padding: 5px;">
+                    <i class="fas fa-trash"></i>
+                </button>
+            `;
+            cartItemsContainer.appendChild(itemElement);
+        });
+    }
+
+    window.removeFromCart = function(index) {
+        cart.splice(index, 1);
+        updateCartUI();
+    };
+
+    // FEATURE: Finalizar Compra
+    checkoutBtn.addEventListener('click', () => {
+        if (cart.length === 0) {
+            showNotification('🛒 Seu carrinho já está vazio!', 'error');
+            return;
+        }
+        
+        // Simula a finalização da compra
+        showNotification('🎉 Compra finalizada com sucesso! O laboratório TechNova agradece.', 'success');
+        
+        // Limpa o estado (zera o array) e atualiza a UI
+        cart = [];
+        updateCartUI();
+        toggleCart(); // Esconde a sidebar automaticamente após comprar
+    });
+
+    // ==========================================
+    // 4. LÓGICA DE BUSCA E CATÁLOGO
+    // ==========================================
+    
+    function formatCurrency(value) {
+        return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+    }
+
+    function showNotification(message, type) {
+        searchNotification.textContent = message;
+        searchNotification.style.display = 'block';
+        searchNotification.style.backgroundColor = type === 'error' ? 'var(--error-red)' : '#28a745';
+        
+        searchNotification.style.color = '#ffffff'; 
+        searchNotification.style.fontWeight = 'bold';
+        searchNotification.style.textShadow = '1px 1px 2px rgba(0,0,0,0.5)';
+        
+        setTimeout(() => {
+            searchNotification.style.display = 'none';
+        }, 3000);
+    }
+
+    searchInput.addEventListener('input', (e) => {
+        const length = e.target.value.length;
+        charCounter.textContent = `${length}/100`;
+    });
+
+    async function fetchProducts(query = '') {
+        try {
+            const response = await fetch(`${API_URL}/products/search?q=${query}`);
+            const data = await response.json();
+            renderProducts(data.results);
+        } catch (error) {
+            console.error('Erro ao buscar produtos:', error);
+            productGrid.innerHTML = '<p style="color: red; text-align: center; width: 100%;">Erro de conexão com a API.</p>';
+        }
+    }
+
+    function renderProducts(products) {
+        productGrid.innerHTML = '';
+        if (products.length === 0) {
+            productGrid.innerHTML = '<p style="text-align: center; width: 100%; color: var(--text-muted);">Nenhum hardware encontrado no laboratório.</p>';
+            return;
+        }
+
+        products.forEach(product => {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            card.setAttribute('data-cy', 'product-card');
+
+            // FIX: Sanitização de aspas para evitar quebra do HTML no onclick
+            const safeName = product.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+
+            card.innerHTML = `
+                <div class="product-image" style="background-image: url('${product.image_url}'); height: 200px; width: 100%; background-size: cover; background-position: center; border-bottom: 2px solid var(--accent-blue);">
+                    ${!product.image_url ? '<div style="padding: 20px; text-align: center;">Imagem Indisponível</div>' : ''}
+                </div>
+                <div class="product-info">
+                    <span class="product-category">${product.category}</span>
+                    <h3 class="product-title">${product.name}</h3>
+                    <p class="product-description" style="min-height: 45px;">${product.description}</p>
+                    <div class="product-footer">
+                        <span class="product-price">${formatCurrency(product.price)}</span>
+                        <button class="buy-btn" data-cy="buy-btn" onclick="addToCart(${product.id}, '${safeName}', ${product.price})">Comprar</button>
+                    </div>
+                </div>
+            `;
+            productGrid.appendChild(card);
+        });
+    }
+
+    searchButton.addEventListener('click', () => {
+        const query = searchInput.value.trim();
+        if (query.length > 0 && query.length < 3) {
+            showNotification('O termo de busca deve ter no mínimo 3 caracteres.', 'error');
+            return;
+        }
+        searchNotification.style.display = 'none';
+        fetchProducts(query);
+    });
+
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            searchButton.click();
+        }
+    });
+
+    fetchProducts();
 });
