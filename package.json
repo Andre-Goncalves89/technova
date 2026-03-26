@@ -25,9 +25,15 @@
     "dotenv": "^16.4.5"
   },
   "devDependencies": {
+    "@badeball/cypress-cucumber-preprocessor": "^24.0.1",
+    "@bahmutov/cypress-esbuild-preprocessor": "^2.2.8",
     "@faker-js/faker": "^8.4.1",
     "cypress": "^13.17.0",
+    "esbuild": "^0.27.4",
     "newman": "^6.1.2",
     "pg": "^8.11.3"
+  },
+  "cypress-cucumber-preprocessor": {
+    "stepDefinitions": "cypress/e2e/step_definitions/**/*.js"
   }
 }

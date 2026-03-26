@@ -134,9 +134,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     }
 
+   // FIX: Re-implementação da lógica de cores da borda (Regressão Day 51)
     searchInput.addEventListener('input', (e) => {
         const length = e.target.value.length;
         charCounter.textContent = `${length}/100`;
+
+        // Lógica de manipulação de classes CSS para feedback visual
+        if (length >= 100) {
+            searchInput.classList.remove('input-warning');
+            searchInput.classList.add('input-error'); // Borda Vermelha
+        } else if (length >= 90) {
+            searchInput.classList.remove('input-error');
+            searchInput.classList.add('input-warning'); // Borda Amarela
+        } else {
+            // Limpa as classes se estiver abaixo de 90
+            searchInput.classList.remove('input-warning', 'input-error');
+        }
     });
 
     async function fetchProducts(query = '') {

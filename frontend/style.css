@@ -51,6 +51,13 @@ header {
     color: var(--accent-blue);
 }
 
+.logo-img {
+    height: 55px; /* Tamanho ideal para bater com os botões da direita */
+    width: auto;
+    object-fit: contain;
+    display: block;
+}
+
 .wallet-display {
     background: rgba(210, 153, 34, 0.1);
     border: 1px solid var(--wallet-gold);
@@ -144,8 +151,27 @@ header {
 
 .product-card:hover {
     transform: translateY(-8px);
-    border-color: var(--accent-blue);
+    outline: 2px solid var(--accent-blue); /* Desenha por fora sem esmagar o texto */
+    outline-offset: -1px; /* Deixa o contorno perfeitamente alinhado */
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+/* --- NOVA REGRA: Respiro interno do texto dos cards --- */
+.product-info {
+    padding: 20px 24px; /* Adiciona 20px de margem em cima/baixo e 24px nas laterais */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex-grow: 1;
+}
+
+/* --- AJUSTE DO RODAPÉ DO CARD (Preço e Botão) --- */
+.product-footer {
+    display: flex;
+    justify-content: space-between; /* Mantém o preço de um lado e o botão do outro */
+    align-items: center; /* Alinha os dois no centro verticalmente */
+    margin-top: auto; /* O SEGREDO: Empurra o botão para o limite de baixo, custe o que custar */
+    padding-top: 20px; /* Cria um "escudo" de 20px de espaço entre o texto da descrição e o botão */
 }
 
 /* Área da Imagem Separada */
