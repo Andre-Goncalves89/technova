@@ -1,5 +1,6 @@
 export const CatalogoUI = {
     CARD_PRODUTO: '.product-card',
     BOTAO_COMPRAR: '[data-cy="buy-btn"]',
-    BADGE_CARRINHO: '[data-cy="cart-badge"]'
+    BADGE_CARRINHO: '[data-cy="cart-badge"]',
+    WALLET_TOTAL: '[data-cy="wallet-display"]'
 };
