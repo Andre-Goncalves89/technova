@@ -73,7 +73,16 @@ const swaggerOptions = {
             '500': { description: 'Erro interno no servidor' }
           }
         }
-      }
+      },
+      '/api/v1/products': {
+        get: {
+          summary: 'Retorna a lista completa de cards de produtos',
+          responses: {
+            '200': { description: 'Lista de produtos retornada com sucesso' },
+            '500': { description: 'Erro interno no servidor' }
+          }
+        }
+      },
     }
   },
   apis: [], // Deixei vazio porque as rotas já estão definidas acima
@@ -102,17 +111,26 @@ app.get('/api/v1/wallet', async (req, res) => {
 });
 
 app.get('/api/v1/products/search', async (req, res) => {
-    const query = req.query.q || '';
+  const query = req.query.q || '';
+  try {
+    let result;
+    if (query.length === 0) {
+      result = await pool.query('SELECT * FROM products ORDER BY id ASC');
+    } else {
+      result = await pool.query(
+        'SELECT * FROM products WHERE name ILIKE $1 OR category ILIKE $1 ORDER BY id ASC',
+        [`%${query}%`]
+      );
+    }
+    res.json({ results: result.rows });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/v1/products', async (req, res) => {
     try {
-        let result;
-        if (query.length === 0) {
-            result = await pool.query('SELECT * FROM products ORDER BY id ASC');
-        } else {
-            result = await pool.query(
-                'SELECT * FROM products WHERE name ILIKE $1 OR category ILIKE $1 ORDER BY id ASC',
-                [`%${query}%`]
-            );
-        }
+        const result = await pool.query('SELECT * FROM products ORDER BY id ASC');
         res.json({ results: result.rows });
     } catch (err) {
         res.status(500).json({ error: err.message });
