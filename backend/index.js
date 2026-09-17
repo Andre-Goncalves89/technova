@@ -22,14 +22,14 @@ const pool = new Pool({
 
 // Configuração do Middleware de Métricas
 const metricsMiddleware = promBundle({
-  includeMethod: true,
-  includePath: true,
-  includeStatusCode: true,
-  includeUp: true,
-  customLabels: { project_name: 'technova_api' },
-  promClient: {
-    collectDefaultMetrics: {}
-  }
+    includeMethod: true, 
+    includePath: true, 
+    includeStatusCode: true, 
+    includeUp: true,
+    customLabels: { project_name: 'technova_api' },
+    promClient: {
+        collectDefaultMetrics: {}
+    }
 });
 
 // Inicializa o coletor no Express
@@ -235,30 +235,6 @@ app.get('/api/v1/products/search', async (req, res) => {
         'SELECT * FROM products WHERE name ILIKE $1 OR category ILIKE $1 ORDER BY id ASC',
         [`%${query}%`]
       );
-
-      app.get('/api/v1/products/:id', async (req, res) => {
-        const { id } = req.params;
-        try {
-          const result = await pool.query('SELECT * FROM products WHERE id = $1', [id]);
-          if (result.rows.length > 0) {
-            res.json(result.rows[0]);
-          } else {
-            res.status(404).json({ error: 'Produto não encontrado' });
-          }
-        } catch (err) {
-          res.status(500).json({ error: err.message });
-        }
-      });
-
-      // Retorna a lista completa de produtos
-      app.get('/api/v1/products', async (req, res) => {
-        try {
-          const result = await pool.query('SELECT * FROM products ORDER BY id ASC');
-          res.status(200).json(result.rows);
-        } catch (err) {
-          res.status(500).json({ error: err.message });
-        }
-      });
     }
     res.json({ results: result.rows });
   } catch (err) {
@@ -280,77 +256,14 @@ app.get('/api/v1/products/:id', async (req, res) => {
   }
 });
 
-app.post('/api/v1/products', async (req, res) => {
-  const { name, description, price, image_url, category } = req.body;
-
-  // Validação simples de campos obrigatórios
-  if (!name || price === undefined || !category) {
-    return res.status(400).json({ error: 'Campos obrigatórios: name, price e category.' });
-  }
-
-  try {
-    const query = `
-            INSERT INTO products (name, description, price, image_url, category) 
-            VALUES ($1, $2, $3, $4, $5) 
-            RETURNING *;
-        `;
-    const values = [name, description || '', price, image_url || '', category];
-    const result = await pool.query(query, values);
-
-    res.status(201).json(result.rows[0]);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.put('/api/v1/products/:id', async (req, res) => {
-  const { id } = req.params;
-  const { name, description, price, image_url, category } = req.body;
-
-  // Validação dos campos obrigatórios
-  if (!name || price === undefined || !category) {
-    return res.status(400).json({ error: 'Campos obrigatórios: name, price e category.' });
-  }
-
-  try {
-    const query = `
-            UPDATE products 
-            SET name = $1, description = $2, price = $3, image_url = $4, category = $5
-            WHERE id = $6 
-            RETURNING *;
-        `;
-    // O $6 representa o nosso ID na query
-    const values = [name, description || '', price, image_url || '', category, id];
-
-    const result = await pool.query(query, values);
-
-    // Se a query rodou mas não retornou linhas, o ID não existe
-    if (result.rows.length > 0) {
-      res.status(200).json(result.rows[0]);
-    } else {
-      res.status(404).json({ error: 'Produto não encontrado para atualização' });
+// Retorna a lista completa de produtos
+app.get('/api/v1/products', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM products ORDER BY id ASC');
+        res.status(200).json(result.rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.delete('/api/v1/products/:id', async (req, res) => {
-  const { id } = req.params;
-
-  try {
-    const query = 'DELETE FROM products WHERE id = $1 RETURNING *;';
-    const result = await pool.query(query, [id]);
-
-    // Se a query retornou o item deletado, deu sucesso
-    if (result.rows.length > 0) {
-      res.status(204).send(); // 204 significa sucesso, mas sem corpo de resposta
-    } else {
-      res.status(404).json({ error: 'Produto não encontrado para exclusão' });
-    }
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
 });
 
 app.post('/api/v1/products', async (req, res) => {
