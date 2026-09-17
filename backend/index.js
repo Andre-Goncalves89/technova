@@ -22,14 +22,14 @@ const pool = new Pool({
 
 // Configuração do Middleware de Métricas
 const metricsMiddleware = promBundle({
-    includeMethod: true, 
-    includePath: true, 
-    includeStatusCode: true, 
-    includeUp: true,
-    customLabels: { project_name: 'technova_api' },
-    promClient: {
-        collectDefaultMetrics: {}
-    }
+  includeMethod: true,
+  includePath: true,
+  includeStatusCode: true,
+  includeUp: true,
+  customLabels: { project_name: 'technova_api' },
+  promClient: {
+    collectDefaultMetrics: {}
+  }
 });
 
 // Inicializa o coletor no Express
@@ -258,12 +258,12 @@ app.get('/api/v1/products/:id', async (req, res) => {
 
 // Retorna a lista completa de produtos
 app.get('/api/v1/products', async (req, res) => {
-    try {
-        const result = await pool.query('SELECT * FROM products ORDER BY id ASC');
-        res.status(200).json(result.rows);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
+  try {
+    const result = await pool.query('SELECT * FROM products ORDER BY id ASC');
+    res.status(200).json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.post('/api/v1/products', async (req, res) => {
