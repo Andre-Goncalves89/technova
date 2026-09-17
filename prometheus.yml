@@ -1,0 +1,7 @@
+global:
+  scrape_interval: 5s
+
+scrape_configs:
+  - job_name: 'technova-api'
+    static_configs:
+      - targets: ['technova_backend:5000']
