@@ -104,6 +104,7 @@ const swaggerOptions = {
           ],
           responses: {
             '200': { description: 'Produto encontrado com sucesso' },
+            '400': { description: 'Parâmetro ID inválido ou formato incorreto' },
             '404': { description: 'Produto não encontrado' },
             '500': { description: 'Erro interno no servidor' }
           }
@@ -225,35 +226,47 @@ app.get('/api/v1/wallet', async (req, res) => {
 });
 
 app.get('/api/v1/products/search', async (req, res) => {
-  const query = req.query.q || '';
-  try {
-    let result;
+    const query = (req.query.q || '').trim();
+
+    // Trava de segurança: se o parâmetro "q" for vazio, recusa a requisição
     if (query.length === 0) {
-      result = await pool.query('SELECT * FROM products ORDER BY id ASC');
-    } else {
-      result = await pool.query(
-        'SELECT * FROM products WHERE name ILIKE $1 OR category ILIKE $1 ORDER BY id ASC',
-        [`%${query}%`]
-      );
+        return res.status(400).json({ 
+            error: "O parâmetro de busca 'q' é obrigatório." 
+        });
     }
-    res.json({ results: result.rows });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+
+    try {
+        const result = await pool.query(
+            'SELECT * FROM products WHERE name ILIKE $1 OR category ILIKE $1 ORDER BY id ASC',
+            [`%${query}%`]
+        );
+
+        res.json({ results: result.rows });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 app.get('/api/v1/products/:id', async (req, res) => {
-  const { id } = req.params;
-  try {
-    const result = await pool.query('SELECT * FROM products WHERE id = $1', [id]);
-    if (result.rows.length > 0) {
-      res.json(result.rows[0]);
-    } else {
-      res.status(404).json({ error: 'Produto não encontrado' });
+    const { id } = req.params;
+
+    // Trava de segurança: valida se o parâmetro ID é numérico e inteiro
+    if (isNaN(id) || !/^\d+$/.test(id)) {
+        return res.status(400).json({ 
+            error: "O parâmetro ID deve ser um número inteiro válido." 
+        });
     }
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+
+    try {
+        const result = await pool.query('SELECT * FROM products WHERE id = $1', [id]);
+        if (result.rows.length > 0) {
+            res.json(result.rows[0]);
+        } else {
+            res.status(404).json({ error: 'Produto não encontrado' });
+        }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // Retorna a lista completa de produtos
