@@ -36,12 +36,17 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
+      # Instala dependências da raiz e da pasta backend
       - name: Instalar dependências da aplicação
-        run: npm ci
+        run: |
+          npm install
+          cd backend && npm install
 
+      # Executa a carga inicial da estrutura do banco
       - name: Inicializar banco de dados com init.sql
         run: PGPASSWORD=technovapass psql -h localhost -U admin -d technova_db -f backend/init.sql
 
+      # Sobe a API em segundo plano passando as variáveis corretas (DB_NAME)
       - name: Subir servidor em segundo plano
         run: npm run backend &
         env:
@@ -50,10 +55,12 @@ jobs:
           DB_PASSWORD: technovapass
           DB_HOST: localhost
           DB_PORT: 5432
+          DB_NAME: technova_db
           DB_DATABASE: technova_db
 
+      # Aguarda o endpoint GET /api/v1/health com limite de tempo de 60 segundos
       - name: Aguardar API inicializar
-        run: npx wait-on http://localhost:5000/api/v1/health # Ou endpoint inicial de status
+        run: npx wait-on http-get://localhost:5000/api/v1/health --timeout 60000
 
       - name: Instalar Newman e Reporter
         run: npm install -g newman newman-reporter-htmlextra
