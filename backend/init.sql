@@ -1,9 +1,15 @@
 -- TECHNOVA DATABASE - SCHEMA V3.0 (EXPANDED CATALOG)
 -- Objetivo: Popular o banco com um catálogo amplo e realista.
 
+-- 1. LIMPEZA DE ESTRUTURAS EXISTENTES
 DROP TABLE IF EXISTS products CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
+DROP TYPE IF EXISTS user_role CASCADE;
 
+-- 2. CRIAÇÃO DO TIPO ENUM PARA RBAC
+CREATE TYPE user_role AS ENUM ('customer', 'admin');
+
+-- 3. CRIAÇÃO DAS TABELAS
 CREATE TABLE products (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -16,10 +22,10 @@ CREATE TABLE products (
 
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
-    username VARCHAR(50) UNIQUE NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
-    balance DECIMAL(10, 2) DEFAULT 0.00,
-    is_tester BOOLEAN DEFAULT TRUE
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    role user_role NOT NULL DEFAULT 'customer',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Seed de Produtos Expandido (14 Itens)
