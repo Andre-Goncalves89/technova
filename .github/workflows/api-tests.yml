@@ -1,0 +1,80 @@
+name: TechNova API Automation Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  api-testing:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: technovapass
+          POSTGRES_DB: technova_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Instalar dependências da aplicação
+        run: npm ci
+
+      - name: Rodar migrations / seeds no banco
+        run: npm run db:migrate
+        env:
+          DB_USER: admin
+          DB_PASSWORD: technovapass
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_DATABASE: technova_db
+
+      - name: Subir servidor em segundo plano
+        run: npm start &
+        env:
+          PORT: 5000
+          DB_USER: admin
+          DB_PASSWORD: technovapass
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_DATABASE: technova_db
+
+      - name: Aguardar API inicializar
+        run: npx wait-on http://localhost:5000/api/v1/health # Ou endpoint inicial de status
+
+      - name: Instalar Newman e Reporter
+        run: npm install -g newman newman-reporter-htmlextra
+
+      - name: Executar Suíte de Testes da API (Newman)
+        run: |
+          newman run qa/postman/TECHNOVA-API-TESTS.postman_collection.json \
+            -e qa/postman/TECHNOVA-API-ENVIRONMENT.postman_environment.json \
+            --env-var "baseUrl=http://localhost:5000/api/v1" \
+            -r cli,htmlextra \
+            --reporter-htmlextra-export newman/report.html
+
+      - name: Salvar Relatório HTML como Artefato
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: postman-html-report
+          path: newman/report.html

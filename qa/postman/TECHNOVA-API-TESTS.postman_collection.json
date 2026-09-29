@@ -1,0 +1,629 @@
+{
+  "info": {
+    "_postman_id": "3793330f-430b-4c13-8e31-97e24b34e362",
+    "name": "TECHNOVA-API-TESTS",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "38437265",
+    "_collection_link": "https://go.postman.co/collection/38437265-3793330f-430b-4c13-8e31-97e24b34e362?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "GET - Validar se aplicação está online",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "const jsonSchema = {\r",
+              "        \"type\": \"object\",\r",
+              "        required: [\"status\"],\r",
+              "        properties: {\r",
+              "            \"status\": {\"type\" : \"string\"}\r",
+              "        }\r",
+              "    } \r",
+              "pm.test(\"Validação de contrato de tipo e Response body contém msg de 'status' 'Technova Backend V3.0 Online'\", function () {\r",
+              "    const response = pm.response.json();\r",
+              "    const validacao = tv4.validateResult(response, jsonSchema)\r",
+              "\r",
+              "    if(!validacao.valid) {\r",
+              "        console.log(\"Erro de schema\", validacao.error)\r",
+              "    }\r",
+              "\r",
+              "    pm.expect(validacao.valid).to.be.true;\r",
+              "    pm.expect(response.status).to.be.a('string').and.contains('TechNova Backend V3.0 Online!')\r",
+              "})"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "health"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET - Validar saldo carteira",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "const jsonSchema = {\r",
+              "    \"type\" : \"object\",\r",
+              "    \"required\" : [\"balance\"],\r",
+              "    \"properties\" : {\r",
+              "        \"balance\" : {\"type\" : \"number\"}\r",
+              "    }\r",
+              "}\r",
+              "\r",
+              "pm.test(\"Validar se response da requisição é um number e validar contrato de tipo cia jsonSchema\", function () {\r",
+              "    const response = pm.response.json();\r",
+              "    const validacao = tv4.validateResult(response, jsonSchema)\r",
+              "\r",
+              "    if(!validacao.valid) {\r",
+              "        console.log(\"Erro de schema\", validacao.error)\r",
+              "    }\r",
+              "\r",
+              "    pm.expect(validacao.valid).to.be.true;\r",
+              "    pm.expect(response.balance).to.be.a('number').and.to.equal(10000)\r",
+              "})"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/wallet",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "wallet"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET - Validar resposta com lista de produtos da API",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "const jsonSchema = {\r",
+              "    \"type\" : \"array\",\r",
+              "    \"items\": {\r",
+              "        \"type\": \"object\",\r",
+              "        \"required\": [ \"id\", \"name\", \"description\", \"price\", \"image_url\", \"category\", \"created_at\"],\r",
+              "        \"properties\": {\r",
+              "            \"id\": {\"type\": \"number\"},\r",
+              "            \"name\": {\"type\": \"string\"},\r",
+              "            \"description\": {\"type\": \"string\"},\r",
+              "            \"price\": {\"type\": \"string\"},\r",
+              "            \"image_url\": {\"type\": \"string\"},\r",
+              "            \"category\": {\"type\": \"string\"},\r",
+              "            \"created_at\": {\"type\": \"string\"}\r",
+              "        }\r",
+              "    }\r",
+              "\r",
+              "}\r",
+              "\r",
+              "pm.test(\"Validar contrato JSON da lista de produtos\", function () {\r",
+              "    const response = pm.response.json();\r",
+              "    const isValid = tv4.validate(response, jsonSchema);\r",
+              "    \r",
+              "    if (!isValid) {\r",
+              "        console.log(\"Detalhe do erro de schema:\", tv4.error);\r",
+              "    }\r",
+              "    \r",
+              "    pm.expect(isValid).to.be.true;\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/products",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "products"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET - Validar pesquisa de produtos no catálogo",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst jsonSchema = {\r\n    \"type\" : \"object\",\r\n    \"required\": [\"results\"],\r\n    \"properties\": {\r\n        \"results\": {\"type\": \"array\"},\r\n        \"items\": {\r\n            \"type\": \"object\",\r\n            \"required\": [ \"id\", \"name\", \"description\", \"price\", \"image_url\", \"category\", \"created_at\"],\r\n            \"properties\": {\r\n                \"id\": {\"type\": \"number\"},\r\n                \"name\": {\"type\": \"string\"},\r\n                \"description\": {\"type\": \"string\"},\r\n                \"price\": {\"type\": \"string\"},\r\n                \"image_url\": {\"type\": \"string\"},\r\n                \"category\": {\"type\": \"string\"},\r\n                \"created_at\": {\"type\": \"string\"}\r\n            }\r\n        }\r\n    }\r\n}\r\n\r\npm.test(\"Validar corpo da resposta e se nome está de acordo com busca\", function () {\r\n    const response = pm.response.json();\r\n    const validacao = tv4.validate(response, jsonSchema);\r\n    const searchTerm = pm.request.url.query.get('q');\r\n\r\n    if(!validacao) {\r\n      console.log(\"Detalhe do erro do shcema:\", tv4.error);  \r\n    }\r\n\r\n    pm.expect(validacao).to.be.true;\r\n    pm.expect(response.results).to.be.an('array').that.is.not.empty;\r\n\r\n    response.results.forEach((product) => {\r\n        pm.expect(product.name.toLowerCase()).to.include(searchTerm.toLowerCase());\r\n    })\r\n})\r\n"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/products/search?q=Placa",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "products",
+            "search"
+          ],
+          "query": [
+            {
+              "key": "q",
+              "value": "Placa"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET NEGATIVE TEST - Validar tentativa de pesquisa de produtos no catálogo  com parametro vazio",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 400 bad request\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\nconst jsonSchema = {\r\n   \"type\": \"object\",\r\n   \"required\": [\"error\"],\r\n   \"properties\": {\"error\": {\"type\": \"string\"} }\r\n}\r\n\r\npm.test(\"Validar contrato de resposta via schema\", function () {\r\n    pm.response.to.have.jsonSchema(jsonSchema)\r\n})\r\n\r\npm.test(\"Validar mensagem de erro para busca vazia\", function () {\r\n    const response = pm.response.json();\r\n    pm.expect(response.error).to.be.a('string');\r\n    pm.expect(response.error.toLowerCase()).to.include(\"obrigatório\");\r\n});\r\n"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/products/search?q=",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "products",
+            "search"
+          ],
+          "query": [
+            {
+              "key": "q",
+              "value": ""
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET - Validar busca de produto por ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst jsonSchema = {\r\n    \"type\": \"object\",\r\n    \"required\": [\"id\", \"name\", \"description\", \"price\", \"image_url\", \"category\", \"created_at\"],\r\n    \"properties\": {\r\n        \"id\": {\"type\": \"number\"},\r\n        \"name\": {\"type\": \"string\"},\r\n        \"description\": {\"type\": \"string\"},\r\n        \"price\": {\"type\": \"string\"},\r\n        \"image_url\": {\"type\": \"string\"},\r\n        \"category\": {\"type\": \"string\"},\r\n        \"created_at\": {\"type\": \"string\"},\r\n    }\r\n}\r\n\r\npm.test(\"Validar contrato do produto (JSON Schema)\", function () {\r\n    pm.response.to.have.jsonSchema(jsonSchema);\r\n});\r\n\r\npm.test(\"Validar se o ID retornado corresponde ao solicitado\", function () {\r\n    const response = pm.response.json();\r\n    pm.expect(response.id).to.be.a('number')\r\n    const expectedId = Number(pm.environment.get(\"productID\"));\r\n    pm.expect(response.id).to.equal(expectedId);\r\n})"
+            ]
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Busca a lista de produtos antes de rodar o teste\r\npm.sendRequest({\r\n    url: pm.environment.get(\"baseUrl\") + \"/products\",\r\n    method: 'GET'\r\n}, function (err, res) {\r\n    if (!err && res.code === 200) {\r\n        const products = res.json();\r\n        \r\n        // Pega o ID do primeiro produto retornado na lista\r\n        if (products.length > 0) {\r\n            const dynamicId = products[0].id;\r\n            \r\n            // Define a variável temporária apenas para este teste\r\n            pm.environment.set(\"productID\", dynamicId);\r\n            console.log(\"ID capturado dinamicamente:\", dynamicId);\r\n        }\r\n    }\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/products/{{productID}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "products",
+            "{{productID}}"
+          ],
+          "query": [
+            {
+              "key": "id",
+              "value": "10",
+              "disabled": true
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "POST - Validar cadastro um novo item no catálogo",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\nconst jsonSchema = {\r\n    \"type\": \"object\",\r\n    \"required\": [\"id\", \"name\", \"description\", \"price\", \"image_url\", \"category\", \"created_at\"],\r\n    \"properties\": {\r\n        \"id\": {\"type\": \"number\"},\r\n        \"name\": {\"type\": \"string\"},\r\n        \"description\": {\"type\": \"string\"},\r\n        \"price\": {\"type\": \"string\"},\r\n        \"image_url\": {\"type\": \"string\"},\r\n        \"category\": {\"type\": \"string\"},\r\n        \"created_at\": {\"type\": \"string\"},\r\n    }\r\n}\r\n\r\npm.test(\"Validar contrato schema\", function () {\r\n    pm.response.to.have.jsonSchema(jsonSchema)\r\n})\r\n\r\npm.test(\"Validar se os dados cadastrados correspondem ao enviado\", function () {\r\n    const response = pm.response.json();\r\n    const requestBody = JSON.parse(pm.request.body.raw);\r\n\r\n    // Compara campo por campo\r\n    pm.expect(response.name).to.equal(requestBody.name);\r\n    pm.expect(response.description).to.equal(requestBody.description);\r\n    pm.expect(response.category).to.equal(requestBody.category);\r\n    pm.expect(Number(response.price)).to.equal(Number(requestBody.price));\r\n});\r\n\r\n// 4. Bônus QA: Salvar o ID gerado para encadeamento de testes\r\npm.test(\"Validar se um ID foi gerado e salvar no Environment\", function () {\r\n    const response = pm.response.json();\r\n    \r\n    pm.expect(response.id).to.be.a('number');\r\n    \r\n    // Salva o ID do produto recém-criado para usar nos testes de GET, PUT ou DELETE\r\n    pm.environment.set(\"productID\", response.id);\r\n});\r\n"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"name\": \"mouse novo top\",\r\n  \"description\": \"O ápice da nova geração\",\r\n  \"price\": 450,\r\n  \"image_url\": \"https://images.unsplash.com/...\",\r\n  \"category\": \"mouses\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/products",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "products"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "POST - NEGATIVE TEST - Validar resposta para cadastro faltando requisitos",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 400 bad request\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\nconst jsonSchema = {\r\n    \"type\": \"object\",\r\n    \"required\": [\"error\"],\r\n    \"properties\": {\"error\": {\"type\": \"string\"} }\r\n}\r\n\r\npm.test(\"Validar contrato schema\", function () {\r\n    pm.response.to.have.jsonSchema(jsonSchema)\r\n})\r\n\r\npm.test(\"Validar corpo da resposta da requisição\", function () {\r\n    const response = pm.response.json();\r\n    pm.expect(response.error).to.be.a('string').and.contains('Campos obrigatórios: name, price e category.')\r\n})\r\n"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"name\": \"mouse novo\",\r\n  \"description\": \"O ápice da nova geração\",\r\n  \"image_url\": \"https://images.unsplash.com/...\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/products",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "products"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "PUT - Atualizar um produto no catálogo",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst jsonSchema = {\r\n    \"type\": \"object\",\r\n    \"required\": [\"id\", \"name\", \"description\", \"price\", \"image_url\", \"category\", \"created_at\"],\r\n    \"properties\": {\r\n        \"id\": {\"type\": \"number\"},\r\n        \"name\": {\"type\": \"string\"},\r\n        \"description\": {\"type\": \"string\"},\r\n        \"price\": {\"type\": \"string\"},\r\n        \"image_url\": {\"type\": \"string\"},\r\n        \"category\": {\"type\": \"string\"},\r\n        \"created_at\": {\"type\": \"string\"},\r\n    }\r\n}\r\n\r\npm.test(\"Validar contrato schema\", function () {\r\n    pm.response.to.have.jsonSchema(jsonSchema)\r\n})\r\n\r\npm.test(\"Validar se os dados atualizados correspondem ao enviado\", function () {\r\n    const response = pm.response.json();\r\n    const requestBody = JSON.parse(pm.request.body.raw);\r\n\r\n    // Compara campo por campo\r\n    pm.expect(response.name).to.equal(requestBody.name);\r\n    pm.expect(response.description).to.equal(requestBody.description);\r\n    pm.expect(response.category).to.equal(requestBody.category);\r\n    pm.expect(Number(response.price)).to.equal(Number(requestBody.price));\r\n});\r\n\r\npm.test(\"Validar se o ID retornado corresponde ao solicitado\", function () {\r\n    const response = pm.response.json();\r\n    pm.expect(response.id).to.be.a('number')\r\n    const expectedId = Number(pm.environment.get(\"productID\"));\r\n    pm.expect(response.id).to.equal(expectedId);\r\n})\r\n"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"name\": \"produto top atualizado\",\r\n  \"description\": \"Descrição atualizada com novos detalhes técnicos.\",\r\n  \"price\": 10000,\r\n  \"image_url\": \"https://images.unsplash.com/photo-nova\",\r\n  \"category\": \"updated\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/products/{{productID}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "products",
+            "{{productID}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "DELETE - Validar processo de delete de um produto no catálogo",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 204\", function () {\r\n    pm.response.to.have.status(204);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/products/{{productID}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "products",
+            "{{productID}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "DELETE - NEGATIVE TEST - Validar resposta de tentativa de delete de um produto no catálogo com ID inexistente",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 404 not found\", function () {\r\n    pm.response.to.have.status(404);\r\n});\r\n\r\nconst jsonSchema = {\r\n    \"type\": \"object\",\r\n    \"required\": [\"error\"],\r\n    \"properties\": { \"error\": {\"type\": \"string\"} }\r\n}\r\n\r\npm.test(\"Validar contrato via schema\", function () {\r\n    pm.response.to.have.jsonSchema(jsonSchema)\r\n})\r\n\r\npm.test(\"Validar corpo da resposta da requisição\", function () {\r\n    const response = pm.response.json();\r\n    pm.expect(response.error).to.be.a('string').and.equal('Produto não encontrado para exclusão')\r\n})"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/products/99",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "products",
+            "99"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET - NEGATIVE TEST- Validar se existe mensagem de resposta de produto não encontrado",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 404 not found\", function () {\r\n    pm.response.to.have.status(404);\r\n});\r\n\r\nconst jsonSchema = {\r\n    \"type\": \"object\",\r\n    \"required\": [\"error\"],\r\n    \"properties\": {\"error\": {\"type\": \"string\"} }\r\n}\r\n\r\npm.test(\"Validar contrato de tipos de dados via Schema\", function () {\r\n    pm.response.to.have.jsonSchema(jsonSchema)\r\n})\r\n\r\npm.test(\"Validar conteúdo da frase de resposta\", function () {\r\n    const response = pm.response.json();\r\n    pm.expect(response.error).to.be.a('string').and.contains('Produto não encontrado')\r\n})"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/products/99",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "products",
+            "99"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "PUT - NEGATIVE TEST - Validar resposta de requisição para atualização de produto faltando requisitos",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 400 bad request\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\nconst jsonSchema = {\r\n    \"type\": \"object\",\r\n    \"required\": [\"error\"],\r\n    \"properties\": {\"error\": {\"type\": \"string\"} } \r\n}\r\n\r\npm.test(\"Validar contrato de resposta via Schema\", function () {\r\n    pm.response.to.have.jsonSchema(jsonSchema)\r\n})\r\n\r\npm.test(\"Validar corpo da resposta da requisição\", function () {\r\n    const response = pm.response.json();\r\n    pm.expect(response.error).to.be.a('string').and.equal('Campos obrigatórios: name, price e category.')\r\n})"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"name\": \"Placa de Vídeo RTX 4090 (Atualizada)\",\r\n  \"description\": \"Descrição atualizada com novos detalhes técnicos.\",\r\n  \"price\": 14500,\r\n  \"image_url\": \"https://images.unsplash.com/photo-nova\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/products/{{productID}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "products",
+            "{{productID}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET NEGATIVE TEST - Validar busca com parametros de busca inexistentes retornando array vazio",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst jsonSchema = {\r\n    \"type\": \"object\",\r\n    \"required\": [\"results\"],\r\n    \"properties\": {\"results\": {\"type\": \"array\"} }\r\n}\r\n\r\npm.test(\"Validar contrato de resposta via schema\", function () {\r\n    pm.response.to.have.jsonSchema(jsonSchema);\r\n})"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/products/search?q=itemInexistente999",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "products",
+            "search"
+          ],
+          "query": [
+            {
+              "key": "q",
+              "value": "itemInexistente999"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "PUT NEGATIVE TEST - Validar tentativa de atualização com ID inexistente",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 404 not found\", function () {\r\n    pm.response.to.have.status(404);\r\n});\r\n\r\nconst jsonSchema = {\r\n    \"type\": \"object\",\r\n    \"required\": [\"error\"],\r\n    \"properties\": {\"error\": {\"type\": \"string\"} }\r\n}\r\n\r\npm.test(\"Validar contrato da resposta via schema\", function () {\r\n    pm.response.to.have.jsonSchema(jsonSchema)\r\n})\r\n\r\npm.test(\"Validar corpo da resposta da requisição\", function () {\r\n    const response = pm.response.json();\r\n    pm.expect(response.error).to.be.a('string').and.equal('Produto não encontrado para atualização')\r\n})"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"name\": \"Placa de Vídeo NOVA\",\r\n  \"description\": \"Descrição atualizada com novos detalhes técnicos.\",\r\n  \"price\": 30000,\r\n  \"image_url\": \"https://images.unsplash.com/photo-nova\",\r\n  \"category\": \"GPU\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/products/999999",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "products",
+            "999999"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET NEGATIVE TEST - Validar resposta da requisição com tipo de dado para parâmetro id inválido",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 400 bad request\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\nconst jsonSchema = {\r\n    \"type\": \"object\",\r\n    \"required\": [\"error\"],\r\n    \"properties\": {\"error\": {\"type\": \"string\"} }\r\n}\r\n\r\npm.test(\"Validar contrato via schema\", function () {\r\n    pm.response.to.have.jsonSchema(jsonSchema)\r\n})\r\n\r\npm.test(\"Validar resposta de corpo da requisição\", function () {\r\n    const response = pm.response.json();\r\n    pm.expect(response.error).to.be.a('string').and.includes('O parâmetro ID deve ser um número')\r\n})"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/products/textoInvalido",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "products",
+            "textoInvalido"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
