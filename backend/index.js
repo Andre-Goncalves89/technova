@@ -214,7 +214,9 @@ app.get('/api/v1/health', (req, res) => {
 
 app.get('/api/v1/wallet', async (req, res) => {
   try {
-    const result = await pool.query('SELECT balance FROM users WHERE username = $1', ['tester_andre']);
+    // Ajustado para buscar por 'email' com o usuário da seed
+    const result = await pool.query('SELECT balance FROM users WHERE email = $1', ['customer@technova.com']);
+    
     if (result.rows.length > 0) {
       res.json({ balance: parseFloat(result.rows[0].balance) });
     } else {
