@@ -152,49 +152,69 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    async function fetchProducts(query = '') {
-        try {
-            const response = await fetch(`${API_URL}/products/search?q=${query}`);
-            const data = await response.json();
-            renderProducts(data.results);
-        } catch (error) {
-            console.error('Erro ao buscar produtos:', error);
-            productGrid.innerHTML = '<p style="color: red; text-align: center; width: 100%;">Erro de conexão com a API.</p>';
-        }
+   async function fetchProducts(query = '') {
+  try {
+    // 1. Alterna o endpoint: usa /products para carga inicial e /products/search quando houver busca
+    const endpoint = query.trim() 
+      ? `${API_URL}/products/search?q=${encodeURIComponent(query.trim())}`
+      : `${API_URL}/products`;
+
+    const response = await fetch(endpoint);
+
+    // 2. Valida se a resposta HTTP teve sucesso (status 200-299)
+    if (!response.ok) {
+      throw new Error(`Erro na API HTTP: ${response.status}`);
     }
 
-    function renderProducts(products) {
-        productGrid.innerHTML = '';
-        if (products.length === 0) {
-            productGrid.innerHTML = '<p style="text-align: center; width: 100%; color: var(--text-muted);">Nenhum hardware encontrado no laboratório.</p>';
-            return;
-        }
+    const data = await response.json();
 
-        products.forEach(product => {
-            const card = document.createElement('div');
-            card.className = 'product-card';
-            card.setAttribute('data-cy', 'product-card');
+    // 3. Suporta tanto array direto [...] quanto objetos { results: [...] } ou { data: [...] }
+    const productsList = Array.isArray(data) 
+      ? data 
+      : (data.results || data.data || []);
 
-            // FIX: Sanitização de aspas para evitar quebra do HTML no onclick
-            const safeName = product.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    renderProducts(productsList);
 
-            card.innerHTML = `
-                <div class="product-image" style="background-image: url('${product.image_url}'); height: 200px; width: 100%; background-size: cover; background-position: center; border-bottom: 2px solid var(--accent-blue);">
-                    ${!product.image_url ? '<div style="padding: 20px; text-align: center;">Imagem Indisponível</div>' : ''}
-                </div>
-                <div class="product-info">
-                    <span class="product-category">${product.category}</span>
-                    <h3 class="product-title">${product.name}</h3>
-                    <p class="product-description" style="min-height: 45px;">${product.description}</p>
-                    <div class="product-footer">
-                        <span class="product-price">${formatCurrency(product.price)}</span>
-                        <button class="buy-btn" data-cy="buy-btn" onclick="addToCart(${product.id}, '${safeName}', ${product.price})">Comprar</button>
-                    </div>
-                </div>
-            `;
-            productGrid.appendChild(card);
-        });
-    }
+  } catch (error) {
+    console.error('Erro ao buscar produtos:', error);
+    productGrid.innerHTML = '<p style="color: red; text-align: center; width: 100%;">Erro de conexão com a API.</p>';
+  }
+}
+
+function renderProducts(products) {
+  productGrid.innerHTML = '';
+
+  // Validação segura para evitar quebra caso o parâmetro não seja um Array
+  if (!Array.isArray(products) || products.length === 0) {
+    productGrid.innerHTML = '<p style="text-align: center; width: 100%; color: var(--text-muted);">Nenhum produto encontrado.</p>';
+    return;
+  }
+
+  products.forEach(product => {
+    const card = document.createElement('div');
+    card.className = 'product-card';
+    card.setAttribute('data-cy', 'product-card');
+
+    const safeName = (product.name || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+
+    card.innerHTML = `
+      <div class="product-image" style="background-image: url('${product.image_url}'); height: 200px;">
+        ${!product.image_url ? '<div style="padding: 20px; text-align: center;">Imagem Indisponível</div>' : ''}
+      </div>
+      <div class="product-info">
+        <span class="product-category">${product.category || 'Geral'}</span>
+        <h3 class="product-title">${product.name}</h3>
+        <p class="product-description" style="min-height: 45px;">${product.description || ''}</p>
+        <div class="product-footer">
+          <span class="product-price">${formatCurrency(product.price)}</span>
+          <button class="buy-btn" data-cy="buy-btn" onclick="addToCart(${product.id}, '${safeName}', ${product.price})">Comprar</button>
+        </div>
+      </div>
+    `;
+
+    productGrid.appendChild(card);
+  });
+}
 
     searchButton.addEventListener('click', () => {
         const query = searchInput.value.trim();
