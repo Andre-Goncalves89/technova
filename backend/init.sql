@@ -28,13 +28,14 @@ CREATE TABLE users (
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     role user_role NOT NULL DEFAULT 'customer',
+    balance DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Seed de Utilizadores (RBAC)
-INSERT INTO users (email, password_hash, role) VALUES
-('admin@technova.com', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6L65322E7e8e52q', 'admin'),
-('customer@technova.com', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6L65322E7e8e52q', 'customer');
+INSERT INTO users (email, password_hash, role, balance) VALUES
+('admin@technova.com', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6L65322E7e8e52q', 'admin', 50000.00),
+('customer@technova.com', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6L65322E7e8e52q', 'customer', 10000.00);
 
 -- Seed de Produtos Expandido (14 Itens com Metadados Completos)
 INSERT INTO products (name, description, description_long, price, sku, stock, image_url, category) VALUES
