@@ -31,6 +31,11 @@ CREATE TABLE users (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Seed de Utilizadores (RBAC)
+INSERT INTO users (email, password_hash, role) VALUES
+('admin@technova.com', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6L65322E7e8e52q', 'admin'),
+('customer@technova.com', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6L65322E7e8e52q', 'customer');
+
 -- Seed de Produtos Expandido (14 Itens)
 INSERT INTO products (name, description, price, image_url, category) VALUES
 ('Placa de Vídeo RTX 4090 Phantom', 'O ápice do desempenho para entusiastas de 4K e Ray Tracing.', 13499.00, 'https://images.unsplash.com/photo-1591488320449-011701bb6704?q=80&w=800', 'GPU'),
