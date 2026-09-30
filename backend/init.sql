@@ -14,7 +14,10 @@ CREATE TABLE products (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description TEXT,
+    description_long TEXT,
     price DECIMAL(10, 2) NOT NULL,
+    sku VARCHAR(50) UNIQUE,
+    stock INT NOT NULL DEFAULT 0,
     image_url TEXT,
     category VARCHAR(100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
