@@ -7,6 +7,8 @@ export class CatalogPage extends BasePage {
   readonly cartBadge: Locator;
   readonly searchInput: Locator;
   readonly searchBtn: Locator;
+  readonly actionUserMsg: Locator
+  readonly charCounterBar: Locator
 
   // --- Locators do Catálogo ---
   readonly productGrid: Locator;
@@ -31,6 +33,8 @@ export class CatalogPage extends BasePage {
     this.cartBadge = this.page.locator('[data-cy="cart-badge"]');
     this.searchInput = this.page.locator('[data-cy="search-input"]');
     this.searchBtn = this.page.locator('[data-cy="search-btn"]');
+    this.actionUserMsg = this.page.locator('[data-cy="search-notification"]');
+    this.charCounterBar = this.page.locator('[data-cy="char-counter"]');
 
     // Catálogo
     this.productGrid = this.page.locator('[data-cy="product-grid"]');
@@ -68,6 +72,42 @@ export class CatalogPage extends BasePage {
   async searchProduct(term: string): Promise<void> {
     await this.fillInput(this.searchInput, term);
     await this.clickElement(this.searchBtn);
+  }
+
+  /**
+   * Preenche o campo de busca com o texto fornecido
+   */
+  async fillSearchInput(text: string): Promise<void> {
+    await this.searchInput.fill(text);
+  }
+
+  /**
+   * Valida o valor retido no input de busca
+   */
+  async validateSearchInputValue(expectedValue: string): Promise<void> {
+    await expect(this.searchInput).toHaveValue(expectedValue);
+  }
+
+  /**
+   * Valida o texto exibido no contador de caracteres
+   */
+  async validateCharCounter(expectedText: string): Promise<void> {
+    await expect(this.charCounterBar).toHaveText(expectedText);
+  }
+
+  /**
+   *  Valida mensagem de ação de usuário
+   */
+  async validateUserMsg(term: string): Promise<void> {
+    await this.validateText(this.actionUserMsg, term)
+    await this.clickElement(this.searchBtn)
+  }
+
+   /**
+   *  Valida mensagem de ação de usuário
+   */
+  async validateProductGridMsg(term: string): Promise<void> {
+    await this.validateText(this.productGrid, term)
   }
 
   /**
