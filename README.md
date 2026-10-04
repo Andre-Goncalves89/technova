@@ -61,9 +61,9 @@ npx playwright test
 
 Abaixo estão os fluxos críticos que foram automatizados e validados pela suíte de testes do Cypress:
 
-* 🟢 **Busca Multitoken**: Validação da inteligência de busca ao pesquisar por palavras-chave fora de ordem (ex: pesquisar por `RTX placa` deve retornar resultados de placas RTX).
-* 🟢 **Acentuação Gráfica**: Teste de integridade de caracteres especiais e suporte a acentos para garantir a correção do **Bug #8** (ex: busca por `Vídeo` funcionando corretamente).
-* 🟢 **Regressão de UI (Contador)**: Validação da mudança de estado visual e lógica do contador de caracteres, garantindo que o limite de `100` caracteres seja respeitado e sinalizado ao usuário.
+* 🟢 **Adição de item ao carrinho de compras**: Validação de adição de 1 item da página no grid de cards de produtos ao carrinho de compras.
+* 🟢 **Controle de limite de caracteres**: Teste que controla o máximo de caracteres (100) permitido no campo de busca da aplicação.
+* 🟢 **Demais testes caminho feliz e edge cases**: Todos os testes descritos estão em suas respectivas pastas /qa/playwright/docs/test-cases && /qa/postman/docs
 
 > **Nota de QA:** Todos os testes foram executados no ambiente **WSL: Ubuntu** apontando para a porta `3000`.
 ---
