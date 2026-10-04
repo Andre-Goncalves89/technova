@@ -59,13 +59,13 @@ npx playwright test
 ```
 ### ✅ Cenários validados com sucesso (`Status: 200 / Passed`)
 
-Abaixo estão os fluxos críticos que foram automatizados e validados pela suíte de testes do Cypress:
+Abaixo estão os fluxos críticos que foram automatizados e validados pela suíte de testes do Playwright/Postman:
 
 * 🟢 **Adição de item ao carrinho de compras**: Validação de adição de 1 item da página no grid de cards de produtos ao carrinho de compras.
 * 🟢 **Controle de limite de caracteres**: Teste que controla o máximo de caracteres (100) permitido no campo de busca da aplicação.
 * 🟢 **Demais testes caminho feliz e edge cases**: Todos os testes descritos estão em suas respectivas pastas /qa/playwright/docs/test-cases && /qa/postman/docs
 
-> **Nota de QA:** Todos os testes foram executados no ambiente **WSL: Ubuntu** apontando para a porta `3000`.
+> **Nota de QA:** Todos os testes foram executados no ambiente **WSL: Ubuntu** apontando para a porta `3000` e `5000`.
 ---
 ## 🏛️ ESTRUTURA DE PASTAS
 
