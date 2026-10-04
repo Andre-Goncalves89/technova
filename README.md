@@ -1,11 +1,12 @@
 # **🚀 TechNova E-commerce Lab (v1.1.0)**
 ---
-### Bem-vindo ao **TechNova**, um laboratório de e-commerce de alta performance desenvolvido para simular cenários reais de Automação de Testes (QA). Este projeto integra uma stack moderna (Node.js, PostgreSQL, Docker) com uma suíte de testes robusta em Playwright. 
+### Bem-vindo ao **TechNova**, um laboratório de e-commerce de alta performance desenvolvido para simular cenários reais de Automação de Testes (QA). Este projeto integra uma stack moderna (Node.js, PostgreSQL, Docker) com uma suíte de testes robusta em Playwright & Postman. 
 
 **Destaques do projeto:**
 * Técnicas avançadas de **Quality Assurance (QA)**.
 * Fluxos de **Integração Contínua**.
-* Automação de testes **E2E com Cypress**.
+* Automação de testes **E2E com Playwright**.
+* Automação de testes **API com Postman**.
 ---
 ## 🛠️ TECNOLOGIAS E FERRAMENTAS
 
@@ -49,16 +50,12 @@ Para evitar que mudanças de layout, estilos CSS ou classes dinâmicas quebrem a
 * **Vantagem:** Redução drástica de *flaky tests* (testes intermitentes).
 * **Contrato:** Os seletores de automação são desacoplados da lógica de design, permitindo que o time de desenvolvimento evolua o visual sem impactar a qualidade.
 
-```bash
-# Exemplo de seletor resiliente no Cypress
-cy.get('[data-cy="search-button"]').click()
-```
----
 ## Execução de Testes E2E (Cypress):
 
-
+--- 
+ 
 ```Comando: 
-npm run test
+npx playwright test
 ```
 ### ✅ Cenários validados com sucesso (`Status: 200 / Passed`)
 
@@ -77,9 +74,10 @@ A organização do ecossistema **TechNova** foi planejada para garantir que a in
 ```text
 technova/
 ├── backend/          # API Node.js, rotas e Scripts de Seed (Postgres)
-├── cypress/          # Suíte de Automação (Specs, fixtures e plugins)
 ├── frontend/         # Código-fonte da interface do e-commerce
-├── cypress.config.js # Configuração global do ambiente Cypress
+├── QA/               # Conteúdo das aplicações de teste via UI e API
+  ├── playwright/     # pastas e arquivos arquitetados no modelo POM
+  ├── posmtan/        # Arquivos de Collections e Environments da API
 └── package.json      # Manifesto do projeto e atalhos de automação
 ```
 ---
