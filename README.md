@@ -50,7 +50,7 @@ Para evitar que mudanças de layout, estilos CSS ou classes dinâmicas quebrem a
 * **Vantagem:** Redução drástica de *flaky tests* (testes intermitentes).
 * **Contrato:** Os seletores de automação são desacoplados da lógica de design, permitindo que o time de desenvolvimento evolua o visual sem impactar a qualidade.
 
-## Execução de Testes E2E (Cypress):
+## Execução de Testes E2E (Playwright):
 
 --- 
  
