@@ -1,6 +1,6 @@
 # **🚀 TechNova E-commerce Lab (v1.1.0)**
 ---
-### Bem-vindo ao **TechNova**, um laboratório de e-commerce de alta performance desenvolvido para simular cenários reais de Automação de Testes (QA). Este projeto integra uma stack moderna (Node.js, PostgreSQL, Docker) com uma suíte de testes robusta em Cypress. 
+### Bem-vindo ao **TechNova**, um laboratório de e-commerce de alta performance desenvolvido para simular cenários reais de Automação de Testes (QA). Este projeto integra uma stack moderna (Node.js, PostgreSQL, Docker) com uma suíte de testes robusta em Playwright. 
 
 **Destaques do projeto:**
 * Técnicas avançadas de **Quality Assurance (QA)**.
